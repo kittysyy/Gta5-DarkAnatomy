@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Инвентарь</title>
+    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="inventory-container" id="inventoryContainer">
+        <!-- ШАПКА -->
+        <div class="inventory-header">
+			<div class="header-section">
+				<h3>Окружение</h3>
+			</div>
+			<div class="header-section center">
+				<h2 id="playerName">Игрок</h2>
+			</div>
+			<div class="header-section right">
+				<h3>Инвентарь</h3>
+				<div class="weight-section">
+					<i class="fas fa-weight-hanging"></i>
+					<div class="weight-bar-container">
+						<div class="weight-bar-fill" id="weightBarFill" style="width: 0%"></div>
+					</div>
+					<span class="weight-text" id="weightDisplay">0 / 50 kg</span>
+				</div>
+				<button class="close-btn" id="closeBtn">
+					<i class="fas fa-times"></i>
+				</button>
+			</div>
+		</div>
+
+        <!-- ОСНОВНОЙ КОНТЕНТ -->
+        <div class="inventory-content">
+            <!-- ЛЕВАЯ ПАНЕЛЬ: ОКРУЖЕНИЕ + РЮКЗАК -->
+            <div class="inventory-panel left-panel" id="dropZone">
+				<!-- ОКРУЖЕНИЕ (50%) -->
+				<div class="section-title">
+					<i class="fas fa-map-marker-alt"></i>
+					<span>Окружение</span>
+				</div>
+				<div class="inventory-grid environment-grid" id="environmentGrid">
+					<!-- Предметы на земле -->
+				</div>
+				
+				<!-- РЮКЗАК (50%) -->
+				<div class="backpack-section">
+					<div class="section-title backpack-title" id="backpackTitle">
+						<i class="fas fa-backpack"></i>
+						<span>Рюкзак</span>
+						<span class="backpack-status" id="backpackStatus">Не надет</span>
+					</div>
+					<div class="inventory-grid backpack-grid" id="backpackGrid">
+						<!-- Слоты рюкзака генерируются JS -->
+					</div>
+				</div>
+			</div>
+            <!-- ЦЕНТР: ЭКИПИРОВКА -->
+            <div class="inventory-panel center-panel">
+                <!-- СИЛУЭТ ПЕРСОНАЖА -->
+                <div class="character-preview">
+                    <svg class="character-silhouette" viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg">
+                        <ellipse cx="100" cy="50" rx="35" ry="40" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                        <rect x="70" y="90" width="60" height="100" rx="10" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                        <rect x="40" y="100" width="30" height="90" rx="8" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                        <rect x="130" y="100" width="30" height="90" rx="8" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                        <rect x="75" y="190" width="22" height="120" rx="8" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                        <rect x="103" y="190" width="22" height="120" rx="8" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                    </svg>
+
+                    <!-- СЛОТЫ ОДЕЖДЫ (вокруг силуэта) -->
+                    <div class="equipment-slots">
+                        <!-- ЛЕВАЯ КОЛОНКА -->
+                        <div class="equipment-slot" data-slot="mask">
+                            <i class="fas fa-mask"></i>
+                            <span class="slot-label">Маска</span>
+                        </div>
+                        <div class="equipment-slot" data-slot="top">
+                            <i class="fas fa-shirt"></i>
+                            <span class="slot-label">Верх</span>
+                        </div>
+                        <div class="equipment-slot" data-slot="legs">
+                            <i class="fas fa-socks"></i>
+                            <span class="slot-label">Низ</span>
+                        </div>
+                        <div class="equipment-slot" data-slot="shoes">
+                            <i class="fas fa-shoe-prints"></i>
+                            <span class="slot-label">Обувь</span>
+                        </div>
+                        
+                        <!-- ПРАВАЯ КОЛОНКА -->
+                        <div class="equipment-slot" data-slot="head">
+                            <i class="fas fa-hat-cowboy"></i>
+                            <span class="slot-label">Шапка</span>
+                        </div>
+                        <div class="equipment-slot" data-slot="accessory">
+                            <i class="fas fa-watch"></i>
+                            <span class="slot-label">Аксессуар</span>
+                        </div>
+                        <div class="equipment-slot" data-slot="backpack">
+                            <i class="fas fa-backpack"></i>
+                            <span class="slot-label">Рюкзак</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- СЛОТЫ ОРУЖИЯ (внизу) -->
+                <div class="weapon-slots">
+                    <div class="equipment-slot weapon-slot" data-slot="weapon1">
+                        <i class="fas fa-gun"></i>
+                        <span class="slot-label">Основное</span>
+                    </div>
+                    <div class="equipment-slot weapon-slot" data-slot="weapon2">
+                        <i class="fas fa-gun"></i>
+                        <span class="slot-label">Доп.</span>
+                    </div>
+                    <div class="equipment-slot weapon-slot" data-slot="melee">
+                        <i class="fas fa-knife"></i>
+                        <span class="slot-label">Холодное</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ПРАВАЯ ПАНЕЛЬ: ИНВЕНТАРЬ -->
+            <div class="inventory-panel right-panel">
+                <!-- ОСНОВНОЙ ИНВЕНТАРЬ -->
+                <div class="inventory-grid main-inventory" id="mainInventory">
+                    <!-- Генерируется JS -->
+                </div>
+
+                <!-- АКТИВНЫЕ ПРЕДМЕТЫ (БЫСТРЫЕ СЛОТЫ) -->
+                <div class="active-items">
+                    <div class="section-title">
+                        <i class="fas fa-star"></i>
+                        <span>Быстрые слоты</span>
+                    </div>
+                    <div class="quick-slots" id="quickSlots">
+                        <!-- Генерируется JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПАНЕЛЬ СТАТОВ ВНИЗУ -->
+        <div class="stats-panel" id="statsPanel">
+            <div class="money-row">
+                <div class="money-item">
+                    <i class="fas fa-wallet"></i>
+                    <span id="cashAmount">$0</span>
+                </div>
+                <div class="money-item">
+                    <i class="fas fa-university"></i>
+                    <span id="bankAmount">$0</span>
+                </div>
+            </div>
+            <div class="stats-row">
+                <div class="stat-item">
+                    <i class="fas fa-heart"></i>
+                    <div class="stat-bar-container">
+                        <div class="stat-bar-fill health" id="healthBar" style="width: 100%"></div>
+                    </div>
+                    <span class="stat-value" id="healthValue">100</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-droplet"></i>
+                    <div class="stat-bar-container">
+                        <div class="stat-bar-fill thirst" id="thirstBar" style="width: 100%"></div>
+                    </div>
+                    <span class="stat-value" id="thirstValue">100</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-utensils"></i>
+                    <div class="stat-bar-container">
+                        <div class="stat-bar-fill hunger" id="hungerBar" style="width: 100%"></div>
+                    </div>
+                    <span class="stat-value" id="hungerValue">100</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- КОНТЕКСТНОЕ МЕНЮ -->
+        <div class="context-menu" id="contextMenu" style="display: none;">
+            <div class="context-item" data-action="use">
+                <i class="fas fa-hand-pointer"></i>
+                <span>Использовать</span>
+            </div>
+            <div class="context-item" data-action="drop">
+                <i class="fas fa-trash"></i>
+                <span>Выбросить</span>
+            </div>
+            <div class="context-item" data-action="split">
+                <i class="fas fa-cut"></i>
+                <span>Разделить</span>
+            </div>
+            <div class="context-item" data-action="info">
+                <i class="fas fa-info-circle"></i>
+                <span>Информация</span>
+            </div>
+        </div>
+
+        <!-- TOOLTIP -->
+        <div class="item-tooltip" id="itemTooltip" style="display: none;">
+            <div class="tooltip-header">
+                <span class="tooltip-name" id="tooltipName">Название предмета</span>
+                <span class="tooltip-weight" id="tooltipWeight">0.5 kg</span>
+            </div>
+            <div class="tooltip-description" id="tooltipDescription">
+                Описание предмета...
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js?v=7"></script>
+</body>
+</html>
