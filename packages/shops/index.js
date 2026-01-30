@@ -1,6 +1,7 @@
 // ===== СИСТЕМА МАГАЗИНОВ =====
 
 const { db } = require('../database');
+const { getBestTorso } = require('./clothingData');
 
 // Хранилище магазинов
 const shops = new Map();
@@ -263,6 +264,64 @@ mp.events.add('shop:refuel', async (player, amount) => {
     } catch (err) {
         console.error('[Shops] Ошибка заправки:', err);
     }
+});
+
+// ===== ПРИМЕРКА ОДЕЖДЫ =====
+mp.events.add('shop:tryClothing', async (player, itemId) => {
+    try {
+        console.log('[Shop] Примерка предмета:', itemId);
+        
+        const [items] = await db.query('SELECT * FROM items WHERE id = ?', [itemId]);
+        if (items.length === 0) return;
+        
+        const item = items[0];
+        if (!item.clothing_data) return;
+        
+        let clothingData;
+        try {
+            clothingData = typeof item.clothing_data === 'string' 
+                ? JSON.parse(item.clothing_data) 
+                : item.clothing_data;
+        } catch (e) {
+            console.error('[Shop] Ошибка парсинга:', e);
+            return;
+        }
+        
+        // Если есть components - применяем все
+        if (clothingData.components && Array.isArray(clothingData.components)) {
+            for (const comp of clothingData.components) {
+                player.setClothes(comp.id, comp.drawable, comp.texture || 0, 0);
+            }
+        }
+        // Если только top - автоматически подбираем torso
+        else if (clothingData.componentId === 11) {
+            const topDrawable = clothingData.drawable;
+            const bestTorso = getBestTorso(topDrawable);
+            
+            player.setClothes(3, bestTorso, 0, 0);      // Torso
+            player.setClothes(8, 15, 0, 0);              // Undershirt (none)
+            player.setClothes(11, topDrawable, clothingData.texture || 0, 0); // Top
+            
+            console.log(`[Shop] Top=${topDrawable}, Auto Torso=${bestTorso}`);
+        }
+        // Одиночный компонент
+        else if (clothingData.componentId !== undefined) {
+            player.setClothes(clothingData.componentId, clothingData.drawable, clothingData.texture || 0, 0);
+        }
+        // Prop
+        else if (clothingData.propId !== undefined) {
+            player.setProp(clothingData.propId, clothingData.drawable, clothingData.texture || 0);
+        }
+        
+    } catch (err) {
+        console.error('[Shop] Ошибка примерки:', err);
+    }
+});
+
+// ===== СБРОС ПРИМЕРКИ =====
+mp.events.add('shop:resetClothing', async (player) => {
+    // Восстановление происходит на клиенте
+    console.log('[Shop] Запрос сброса одежды');
 });
 
 // Загружаем магазины при старте

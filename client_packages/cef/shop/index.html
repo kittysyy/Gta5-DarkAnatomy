@@ -3,93 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Магазин</title>
+    <title>Магазин одежды</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="shop-container">
-        <!-- Заголовок -->
-        <div class="shop-header">
-            <div class="shop-title">
-                <i class="fas fa-store" id="shopIcon"></i>
-                <span id="shopName">Магазин</span>
-            </div>
-            <div class="shop-balance">
-                <div class="balance-item">
-                    <i class="fas fa-wallet"></i>
-                    <span id="cashBalance">$0</span>
+        <!-- Основная панель -->
+        <div class="shop-main">
+            <!-- Заголовок -->
+            <div class="shop-header">
+                <div class="shop-title">
+                    <i class="fas fa-tshirt" id="shopIcon"></i>
+                    <span id="shopName">Магазин одежды</span>
                 </div>
-                <div class="balance-item">
-                    <i class="fas fa-credit-card"></i>
-                    <span id="bankBalance">$0</span>
+                <div class="shop-balance">
+                    <div class="balance-item">
+                        <i class="fas fa-wallet"></i>
+                        <span id="cashBalance">$0</span>
+                    </div>
+                    <div class="balance-item">
+                        <i class="fas fa-credit-card"></i>
+                        <span id="bankBalance">$0</span>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closeShop()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Категории -->
+            <div class="clothing-categories" id="clothingCategories">
+                <button class="cat-btn active" data-category="all">
+                    <i class="fas fa-th"></i> Все
+                </button>
+                <button class="cat-btn" data-category="tops">
+                    <i class="fas fa-tshirt"></i> Верх
+                </button>
+                <button class="cat-btn" data-category="pants">
+                    <i class="fas fa-socks"></i> Штаны
+                </button>
+                <button class="cat-btn" data-category="shoes">
+                    <i class="fas fa-shoe-prints"></i> Обувь
+                </button>
+                <button class="cat-btn" data-category="accessories">
+                    <i class="fas fa-glasses"></i> Аксессуары
+                </button>
+                <button class="cat-btn" data-category="hats">
+                    <i class="fas fa-hat-cowboy"></i> Головные уборы
+                </button>
+                <button class="cat-btn" data-category="masks">
+                    <i class="fas fa-mask"></i> Маски
+                </button>
+                <button class="cat-btn" data-category="bags">
+                    <i class="fas fa-briefcase"></i> Сумки
+                </button>
+            </div>
+            
+            <!-- Товары -->
+            <div class="products-container">
+                <div class="products-grid" id="productsGrid">
+                    <!-- Товары -->
                 </div>
             </div>
-            <button class="close-btn" onclick="closeShop()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        
-        <!-- Категории -->
-        <div class="shop-categories" id="categories">
-            <!-- Генерируются динамически -->
-        </div>
-        
-        <!-- Товары -->
-        <div class="shop-content">
-            <div class="products-grid" id="productsGrid">
-                <!-- Генерируются динамически -->
+            
+            <!-- Выбранный товар -->
+            <div class="selected-item-panel" id="selectedPanel">
+                <div class="no-selection" id="noSelection">
+                    <i class="fas fa-hand-pointer"></i> Выберите товар для примерки
+                </div>
+                <div class="selected-content" id="selectedContent">
+                    <div class="selected-item-info">
+                        <div class="selected-item-icon" id="selectedIcon">
+                            <i class="fas fa-tshirt"></i>
+                        </div>
+                        <div class="selected-item-details">
+                            <div class="selected-item-name" id="selectedName">-</div>
+                            <div class="selected-item-price" id="selectedPrice">$0</div>
+                        </div>
+                    </div>
+                    <div class="selected-item-actions">
+                        <button class="action-btn try-btn" id="tryBtn" onclick="tryOnItem()">
+                            <i class="fas fa-tshirt"></i> Примерить
+                        </button>
+                        <button class="action-btn cart-btn" id="cartBtn" onclick="addSelectedToCart()">
+                            <i class="fas fa-cart-plus"></i> В корзину
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         
         <!-- Корзина -->
-        <div class="shop-cart">
+        <div class="cart-panel">
             <div class="cart-header">
                 <i class="fas fa-shopping-cart"></i>
                 <span>Корзина</span>
                 <span class="cart-count" id="cartCount">0</span>
             </div>
             <div class="cart-items" id="cartItems">
-                <!-- Товары в корзине -->
+                <div class="cart-empty">Корзина пуста</div>
             </div>
-            <div class="cart-total">
-                <span>Итого:</span>
-                <span id="cartTotal">$0</span>
-            </div>
-            <div class="cart-actions">
-                <select id="paymentType">
-                    <option value="cash">Наличные</option>
-                    <option value="bank">Банк</option>
-                </select>
-                <button class="buy-btn" onclick="checkout()">
-                    <i class="fas fa-check"></i> Купить
-                </button>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Итого:</span>
+                    <span id="cartTotal">$0</span>
+                </div>
+                <div class="cart-row">
+                    <select id="paymentType" class="payment-select">
+                        <option value="cash">💵 Наличные</option>
+                        <option value="bank">💳 Банк</option>
+                    </select>
+                    <button class="checkout-btn" onclick="checkout()">
+                        <i class="fas fa-check"></i> Купить
+                    </button>
+                </div>
             </div>
         </div>
-        
-        <!-- Панель заправки (только для заправок) -->
-        <div class="refuel-panel" id="refuelPanel" style="display: none;">
-            <div class="refuel-header">
-                <i class="fas fa-gas-pump"></i>
-                <span>Заправка</span>
-            </div>
-            <div class="refuel-content">
-                <div class="refuel-slider">
-                    <input type="range" id="fuelAmount" min="1" max="100" value="50">
-                    <span id="fuelDisplay">50л</span>
-                </div>
-                <div class="refuel-price">
-                    Стоимость: <span id="fuelPrice">$150</span>
-                </div>
-                <button class="refuel-btn" onclick="refuel()">
-                    <i class="fas fa-gas-pump"></i> Заправить
-                </button>
-            </div>
-        </div>
-        
-        <!-- Уведомления -->
-        <div class="notifications" id="notifications"></div>
+		    <!-- Кнопки вращения -->
+		<div class="rotation-controls">
+			<button class="rotate-btn" onclick="rotateLeft()">
+				<i class="fas fa-undo"></i>
+			</button>
+			<button class="rotate-btn" onclick="resetRotation()">
+				<i class="fas fa-sync"></i>
+			</button>
+			<button class="rotate-btn" onclick="rotateRight()">
+				<i class="fas fa-redo"></i>
+			</button>
+		</div>
     </div>
+    
+    <!-- Уведомления -->
+    <div class="notifications" id="notifications"></div>
     
     <script src="script.js"></script>
 </body>

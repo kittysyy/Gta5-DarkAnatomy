@@ -3,7 +3,7 @@ const config = require('../config');
 const security = require('../security');
 // ===== ПОДКЛЮЧЕНИЕ ДОПОЛНИТЕЛЬНЫХ МОДУЛЕЙ =====
 require('../objects');
-require('./shops');
+require('../shops');
 
 console.log('[Server] ✅ Все модули загружены!');
 
@@ -42,6 +42,12 @@ mp.events.add('playerJoin', async (player) => {
 // === АВТОРИЗАЦИЯ ===
 
 mp.events.add('server:login', async (player, login, password) => {
+	console.log('='.repeat(60));
+    console.log('[Server] ===== server:login ПОЛУЧЕН =====');
+    console.log('[Server] Игрок:', player.name || player.id);
+    console.log('[Server] Логин:', login);
+    console.log('[Server] Пароль:', password ? '[есть]' : '[пусто]');
+	
     try {
         
         // Validate inputs
@@ -188,37 +194,49 @@ mp.events.add('server:register', async (player, login, password) => {
             [login]
         );
         
-        if (existing.length > 0) {
+        console.log(`[Server] Проверка логина ${login}:`, existing);
+        
+        if (existing && existing.length > 0) {
             console.log(`[Server] Логин ${login} уже занят`);
-            player.call('client:authResponse', ['error', 'Логин уже занят']);
+            player.call('client:authResponse', ['error', 'Этот логин уже занят. Выберите другой.']);
             return;
         }
         
         // Hash password
         const hashedPassword = await security.hashPassword(password);
         
-        // Создаем нового пользователя
-        const [result] = await db.query(
-            'INSERT INTO users (login, password, ip_address, registered_at, last_login, money, bank, level, exp, admin_level) VALUES (?, ?, ?, NOW(), NOW(), ?, ?, 1, 0, 0)',
-            [login, hashedPassword, player.ip, config.REGISTRATION.START_MONEY, config.REGISTRATION.START_BANK]
-        );
-        
-        player.accountId = result.insertId;
-        player.socialClub = login;
-        player.adminLevel = 0;
-        
-        console.log(`[Server] ✅ Игрок ${login} успешно зарегистрирован (ID: ${result.insertId})`);
-        
-        player.call('client:authResponse', ['success', 'Регистрация успешна!']);
-        
-        setTimeout(() => {
-            // Пустой массив для нового пользователя
-            player.call('client:showCharacterSelection', [JSON.stringify([])]);
-        }, 1000);
+        // Создаем нового пользователя с обработкой дубликата
+        try {
+            const [result] = await db.query(
+                'INSERT INTO users (login, password, ip_address, registered_at, last_login, money, bank, level, exp, admin_level) VALUES (?, ?, ?, NOW(), NOW(), ?, ?, 1, 0, 0)',
+                [login, hashedPassword, player.ip, config.REGISTRATION.START_MONEY, config.REGISTRATION.START_BANK]
+            );
+            
+            player.accountId = result.insertId;
+            player.socialClub = login;
+            player.adminLevel = 0;
+            
+            console.log(`[Server] ✅ Игрок ${login} успешно зарегистрирован (ID: ${result.insertId})`);
+            
+            player.call('client:authResponse', ['success', 'Регистрация успешна!']);
+            
+            setTimeout(() => {
+                player.call('client:showCharacterSelection', [JSON.stringify([])]);
+            }, 1000);
+            
+        } catch (insertErr) {
+            // Ловим ошибку дубликата
+            if (insertErr.code === 'ER_DUP_ENTRY') {
+                console.log(`[Server] Дубликат логина ${login}`);
+                player.call('client:authResponse', ['error', 'Этот логин уже занят. Выберите другой.']);
+                return;
+            }
+            throw insertErr;
+        }
         
     } catch (err) {
         console.error('[Server] ❌ Ошибка при регистрации:', err);
-        player.call('client:authResponse', ['error', 'Ошибка регистрации']);
+        player.call('client:authResponse', ['error', 'Ошибка регистрации. Попробуйте позже.']);
     }
 });
 

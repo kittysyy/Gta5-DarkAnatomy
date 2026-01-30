@@ -1,158 +1,187 @@
-// ===== СИСТЕМА МАГАЗИНА (CEF) =====
+// ===== МАГАЗИН ОДЕЖДЫ =====
 
 let shopData = null;
 let playerData = null;
 let cart = [];
 let currentCategory = 'all';
+let selectedProduct = null;
+
+const CLOTHING_CATEGORIES = {
+    'tops': ['футболка', 'рубашка', 'куртка', 'пиджак', 'свитер', 'майка', 'толстовка', 'жилет', 'пальто', 'hoodie', 'jacket', 'shirt', 'tank'],
+    'pants': ['джинсы', 'штаны', 'брюки', 'шорты', 'jeans', 'pants', 'shorts'],
+    'shoes': ['кроссовки', 'ботинки', 'туфли', 'сандалии', 'кеды', 'обувь', 'shoes', 'boots', 'sneakers'],
+    'accessories': ['очки', 'часы', 'цепочка', 'браслет', 'перчатки', 'glasses', 'watch'],
+    'hats': ['шапка', 'кепка', 'шляпа', 'бандана', 'берет', 'шлем', 'hat', 'cap', 'beanie'],
+    'masks': ['маска', 'балаклава', 'респиратор', 'mask'],
+    'bags': ['рюкзак', 'сумка', 'backpack', 'bag']
+};
 
 const CATEGORY_ICONS = {
-    'consumable': 'fa-utensils',
-    'medical': 'fa-medkit',
-    'weapon': 'fa-gun',
-    'ammo': 'fa-crosshairs',
-    'clothing': 'fa-tshirt',
-    'tool': 'fa-wrench',
-    'electronics': 'fa-mobile-alt',
-    'default': 'fa-box'
+    'tops': 'fa-tshirt',
+    'pants': 'fa-socks',
+    'shoes': 'fa-shoe-prints',
+    'accessories': 'fa-glasses',
+    'hats': 'fa-hat-cowboy',
+    'masks': 'fa-mask',
+    'bags': 'fa-briefcase',
+    'all': 'fa-th'
 };
 
-const SHOP_ICONS = {
-    'general': 'fa-store',
-    'clothing': 'fa-tshirt',
-    'weapon': 'fa-gun',
-    'gasstation': 'fa-gas-pump'
-};
-
-// ===== ЗАГРУЗКА МАГАЗИНА =====
+// ===== ЗАГРУЗКА =====
 function loadShop(shopJson, playerJson) {
     try {
         shopData = JSON.parse(shopJson);
         playerData = JSON.parse(playerJson);
         
-        // Заголовок
         document.getElementById('shopName').textContent = shopData.name;
-        document.getElementById('shopIcon').className = `fas ${SHOP_ICONS[shopData.type] || 'fa-store'}`;
-        
-        // Баланс
         updateBalance(playerJson);
         
-        // Категории
-        renderCategories();
+        shopData.products.forEach(product => {
+            product.clothingCategory = detectClothingCategory(product.name);
+        });
         
-        // Товары
         renderProducts();
+        setupCategoryHandlers();
         
-        // Показываем панель заправки если это заправка
-        if (shopData.type === 'gasstation') {
-            document.getElementById('refuelPanel').style.display = 'block';
-            setupFuelSlider();
-        }
+        console.log('[Shop] Загружено товаров:', shopData.products.length);
         
     } catch (err) {
         console.error('[Shop] Ошибка загрузки:', err);
     }
 }
 
-// ===== КАТЕГОРИИ =====
-function renderCategories() {
-    const container = document.getElementById('categories');
+function detectClothingCategory(productName) {
+    const name = productName.toLowerCase();
     
-    // Получаем уникальные типы товаров
-    const types = [...new Set(shopData.products.map(p => p.type))];
-    
-    let html = `<button class="category-btn active" onclick="filterCategory('all')">Все</button>`;
-    
-    types.forEach(type => {
-        const icon = CATEGORY_ICONS[type] || CATEGORY_ICONS.default;
-        const name = getCategoryName(type);
-        html += `<button class="category-btn" onclick="filterCategory('${type}')">
-            <i class="fas ${icon}"></i> ${name}
-        </button>`;
-    });
-    
-    container.innerHTML = html;
-}
-
-function getCategoryName(type) {
-    const names = {
-        'consumable': 'Еда и напитки',
-        'medical': 'Медикаменты',
-        'weapon': 'Оружие',
-        'ammo': 'Патроны',
-        'clothing': 'Одежда',
-        'tool': 'Инструменты',
-        'electronics': 'Электроника'
-    };
-    return names[type] || type;
-}
-
-function filterCategory(type) {
-    currentCategory = type;
-    
-    // Обновляем активную кнопку
-    document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.textContent.includes(getCategoryName(type)) || (type === 'all' && btn.textContent === 'Все')) {
-            btn.classList.add('active');
+    for (const [category, keywords] of Object.entries(CLOTHING_CATEGORIES)) {
+        for (const keyword of keywords) {
+            if (name.includes(keyword.toLowerCase())) {
+                return category;
+            }
         }
-    });
-    
-    renderProducts();
+    }
+    return 'accessories';
 }
 
-// ===== ТОВАРЫ =====
+function setupCategoryHandlers() {
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentCategory = this.dataset.category;
+            renderProducts();
+        });
+    });
+}
+
+// ===== РЕНДЕР ТОВАРОВ =====
 function renderProducts() {
     const container = document.getElementById('productsGrid');
     
     let products = shopData.products;
     if (currentCategory !== 'all') {
-        products = products.filter(p => p.type === currentCategory);
+        products = products.filter(p => p.clothingCategory === currentCategory);
     }
     
     if (products.length === 0) {
-        container.innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center; grid-column: 1/-1; padding: 50px;">Нет товаров в этой категории</div>';
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: rgba(255,255,255,0.4); padding: 40px;">Нет товаров</div>`;
         return;
     }
     
     container.innerHTML = products.map(product => `
-        <div class="product-card" onclick="addToCart(${product.id})">
+        <div class="product-card ${selectedProduct && selectedProduct.id === product.id ? 'selected' : ''}" 
+             data-id="${product.id}">
             <div class="product-icon">
-                ${getProductIcon(product)}
+                <i class="fas ${getCategoryIcon(product.clothingCategory)}"></i>
             </div>
             <div class="product-name">${product.name}</div>
-            <div class="product-price ${product.discount > 0 ? 'discount' : ''}">
-                ${product.discount > 0 ? `<span class="original">$${product.price}</span>` : ''}
-                $${product.finalPrice}
-            </div>
+            <div class="product-price">$${product.finalPrice.toLocaleString()}</div>
         </div>
     `).join('');
+    
+    // Добавляем обработчики кликов
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const productId = parseInt(this.dataset.id);
+            selectProduct(productId);
+        });
+        
+        card.addEventListener('dblclick', function() {
+            const productId = parseInt(this.dataset.id);
+            addToCart(productId);
+        });
+    });
 }
 
-function getProductIcon(product) {
-    if (product.icon) {
-        return `<img src="${product.icon}" alt="" style="width: 40px; height: 40px;">`;
+function getCategoryIcon(category) {
+    return CATEGORY_ICONS[category] || 'fa-tshirt';
+}
+
+// ===== ВЫБОР ТОВАРА =====
+function selectProduct(productId) {
+    const product = shopData.products.find(p => p.id === productId);
+    if (!product) return;
+    
+    selectedProduct = product;
+    
+    // Обновляем выделение
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.classList.remove('selected');
+        if (parseInt(card.dataset.id) === productId) {
+            card.classList.add('selected');
+        }
+    });
+    
+    // Показываем панель с кнопками
+    document.getElementById('noSelection').style.display = 'none';
+    document.getElementById('selectedContent').classList.add('active');
+    
+    // Заполняем данные
+    document.getElementById('selectedName').textContent = product.name;
+    document.getElementById('selectedPrice').textContent = `$${product.finalPrice.toLocaleString()}`;
+    document.getElementById('selectedIcon').innerHTML = `<i class="fas ${getCategoryIcon(product.clothingCategory)}"></i>`;
+    
+    console.log('[Shop] Выбран товар:', product.name, 'itemId:', product.itemId);
+}
+
+// ===== ПРИМЕРКА =====
+function tryOnItem() {
+    if (!selectedProduct) {
+        showNotification('error', 'Сначала выберите товар!');
+        return;
     }
     
-    const icon = CATEGORY_ICONS[product.type] || CATEGORY_ICONS.default;
-    return `<i class="fas ${icon}" style="color: #4CAF50;"></i>`;
+    console.log('[Shop] Примерка:', selectedProduct.name, 'itemId:', selectedProduct.itemId);
+    
+    mp.trigger('cef:tryClothing', selectedProduct.itemId);
+    showNotification('success', `Примерка: ${selectedProduct.name}`);
 }
 
 // ===== КОРЗИНА =====
+function addSelectedToCart() {
+    if (selectedProduct) {
+        addToCart(selectedProduct.id);
+    } else {
+        showNotification('error', 'Сначала выберите товар!');
+    }
+}
+
 function addToCart(productId) {
     const product = shopData.products.find(p => p.id === productId);
     if (!product) return;
     
-    const existing = cart.find(c => c.id === productId);
-    if (existing) {
-        existing.quantity++;
-    } else {
-        cart.push({
-            id: product.id,
-            name: product.name,
-            price: product.finalPrice,
-            quantity: 1
-        });
+    if (cart.find(c => c.id === productId)) {
+        showNotification('error', 'Товар уже в корзине');
+        return;
     }
+    
+    cart.push({
+        id: product.id,
+        itemId: product.itemId,
+        name: product.name,
+        price: product.finalPrice,
+        category: product.clothingCategory
+    });
     
     renderCart();
     showNotification('success', `${product.name} добавлен в корзину`);
@@ -163,25 +192,13 @@ function removeFromCart(productId) {
     renderCart();
 }
 
-function updateQuantity(productId, delta) {
-    const item = cart.find(c => c.id === productId);
-    if (!item) return;
-    
-    item.quantity += delta;
-    if (item.quantity <= 0) {
-        removeFromCart(productId);
-    } else {
-        renderCart();
-    }
-}
-
 function renderCart() {
     const container = document.getElementById('cartItems');
     const countEl = document.getElementById('cartCount');
     const totalEl = document.getElementById('cartTotal');
     
     if (cart.length === 0) {
-        container.innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center; padding: 30px;">Корзина пуста</div>';
+        container.innerHTML = '<div class="cart-empty">Корзина пуста</div>';
         countEl.textContent = '0';
         totalEl.textContent = '$0';
         return;
@@ -189,27 +206,34 @@ function renderCart() {
     
     container.innerHTML = cart.map(item => `
         <div class="cart-item">
+            <div class="cart-item-icon"><i class="fas ${getCategoryIcon(item.category)}"></i></div>
             <div class="cart-item-info">
                 <div class="cart-item-name">${item.name}</div>
-                <div class="cart-item-price">$${item.price} × ${item.quantity}</div>
-            </div>
-            <div class="cart-item-qty">
-                <button onclick="updateQuantity(${item.id}, -1)">-</button>
-                <span>${item.quantity}</span>
-                <button onclick="updateQuantity(${item.id}, 1)">+</button>
+                <div class="cart-item-price">$${item.price.toLocaleString()}</div>
             </div>
             <i class="fas fa-trash cart-item-remove" onclick="removeFromCart(${item.id})"></i>
         </div>
     `).join('');
     
-    const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    countEl.textContent = totalCount;
-    totalEl.textContent = `$${totalPrice.toLocaleString()}`;
+    countEl.textContent = cart.length;
+    totalEl.textContent = `$${cart.reduce((sum, item) => sum + item.price, 0).toLocaleString()}`;
 }
 
-// ===== ОФОРМЛЕНИЕ ПОКУПКИ =====
+
+// ===== ВРАЩЕНИЕ КАМЕРЫ =====
+function rotateLeft() {
+    mp.trigger('cef:rotateCameraLeft');
+}
+
+function rotateRight() {
+    mp.trigger('cef:rotateCameraRight');
+}
+
+function resetRotation() {
+    mp.trigger('cef:resetRotation');
+}
+
+// ===== ПОКУПКА =====
 function checkout() {
     if (cart.length === 0) {
         showNotification('error', 'Корзина пуста');
@@ -217,42 +241,21 @@ function checkout() {
     }
     
     const paymentType = document.getElementById('paymentType').value;
-    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    // Проверяем баланс
+    const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
     const balance = paymentType === 'bank' ? playerData.bank : playerData.cash;
+    
     if (balance < totalPrice) {
         showNotification('error', 'Недостаточно средств');
         return;
     }
     
-    // Отправляем каждый товар на сервер
     cart.forEach(item => {
-        mp.trigger('cef:buyItem', item.id, item.quantity, paymentType);
+        mp.trigger('cef:buyItem', item.id, 1, paymentType);
     });
     
-    // Очищаем корзину
     cart = [];
     renderCart();
-}
-
-// ===== ЗАПРАВКА =====
-function setupFuelSlider() {
-    const slider = document.getElementById('fuelAmount');
-    const display = document.getElementById('fuelDisplay');
-    const price = document.getElementById('fuelPrice');
-    const pricePerLiter = 3;
-    
-    slider.addEventListener('input', () => {
-        const amount = slider.value;
-        display.textContent = `${amount}л`;
-        price.textContent = `$${amount * pricePerLiter}`;
-    });
-}
-
-function refuel() {
-    const amount = document.getElementById('fuelAmount').value;
-    mp.trigger('cef:refuel', amount);
+    showNotification('success', 'Покупка оформлена!');
 }
 
 // ===== БАЛАНС =====
@@ -260,37 +263,29 @@ function updateBalance(balanceJson) {
     try {
         const data = typeof balanceJson === 'string' ? JSON.parse(balanceJson) : balanceJson;
         playerData = { ...playerData, ...data };
-        
         document.getElementById('cashBalance').textContent = `$${(data.cash || 0).toLocaleString()}`;
         document.getElementById('bankBalance').textContent = `$${(data.bank || 0).toLocaleString()}`;
-    } catch (err) {
-        console.error('[Shop] Ошибка обновления баланса:', err);
-    }
+    } catch (err) {}
 }
 
 // ===== УВЕДОМЛЕНИЯ =====
 function showNotification(type, message) {
     const container = document.getElementById('notifications');
-    
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
-    notification.textContent = message;
-    
+    notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
     container.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
+    setTimeout(() => notification.remove(), 3000);
 }
 
 // ===== ЗАКРЫТИЕ =====
 function closeShop() {
+    mp.trigger('cef:resetClothing');
     mp.trigger('cef:closeShop');
 }
 
-// ESC для закрытия
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeShop();
-    }
+    if (e.key === 'Escape') closeShop();
 });
+
+console.log('[Shop CEF] Скрипт загружен');
