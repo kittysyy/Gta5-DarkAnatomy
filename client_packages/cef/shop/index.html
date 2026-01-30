@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Магазин</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="shop-container">
+        <!-- Заголовок -->
+        <div class="shop-header">
+            <div class="shop-title">
+                <i class="fas fa-store" id="shopIcon"></i>
+                <span id="shopName">Магазин</span>
+            </div>
+            <div class="shop-balance">
+                <div class="balance-item">
+                    <i class="fas fa-wallet"></i>
+                    <span id="cashBalance">$0</span>
+                </div>
+                <div class="balance-item">
+                    <i class="fas fa-credit-card"></i>
+                    <span id="bankBalance">$0</span>
+                </div>
+            </div>
+            <button class="close-btn" onclick="closeShop()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- Категории -->
+        <div class="shop-categories" id="categories">
+            <!-- Генерируются динамически -->
+        </div>
+        
+        <!-- Товары -->
+        <div class="shop-content">
+            <div class="products-grid" id="productsGrid">
+                <!-- Генерируются динамически -->
+            </div>
+        </div>
+        
+        <!-- Корзина -->
+        <div class="shop-cart">
+            <div class="cart-header">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Корзина</span>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <!-- Товары в корзине -->
+            </div>
+            <div class="cart-total">
+                <span>Итого:</span>
+                <span id="cartTotal">$0</span>
+            </div>
+            <div class="cart-actions">
+                <select id="paymentType">
+                    <option value="cash">Наличные</option>
+                    <option value="bank">Банк</option>
+                </select>
+                <button class="buy-btn" onclick="checkout()">
+                    <i class="fas fa-check"></i> Купить
+                </button>
+            </div>
+        </div>
+        
+        <!-- Панель заправки (только для заправок) -->
+        <div class="refuel-panel" id="refuelPanel" style="display: none;">
+            <div class="refuel-header">
+                <i class="fas fa-gas-pump"></i>
+                <span>Заправка</span>
+            </div>
+            <div class="refuel-content">
+                <div class="refuel-slider">
+                    <input type="range" id="fuelAmount" min="1" max="100" value="50">
+                    <span id="fuelDisplay">50л</span>
+                </div>
+                <div class="refuel-price">
+                    Стоимость: <span id="fuelPrice">$150</span>
+                </div>
+                <button class="refuel-btn" onclick="refuel()">
+                    <i class="fas fa-gas-pump"></i> Заправить
+                </button>
+            </div>
+        </div>
+        
+        <!-- Уведомления -->
+        <div class="notifications" id="notifications"></div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

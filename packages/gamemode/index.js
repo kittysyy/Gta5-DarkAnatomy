@@ -3,6 +3,7 @@ const config = require('../config');
 const security = require('../security');
 // ===== ПОДКЛЮЧЕНИЕ ДОПОЛНИТЕЛЬНЫХ МОДУЛЕЙ =====
 require('../objects');
+require('./shops');
 
 console.log('[Server] ✅ Все модули загружены!');
 

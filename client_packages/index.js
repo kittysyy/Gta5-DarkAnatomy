@@ -1875,16 +1875,6 @@ mp.events.add('cef:pickupItem', (groundItemId) => {
     mp.events.callRemote('inventory:pickupItem', groundItemId);
 });
 
-// Клавиша E для быстрого подбора
-mp.keys.bind(0x45, false, () => { // E key
-    if (nearbyGroundItems.length > 0 && !isInventoryOpen) {
-        const nearest = nearbyGroundItems[0];
-        if (nearest.distance <= 3) {
-            mp.events.callRemote('inventory:pickupItem', nearest.id);
-        }
-    }
-});
-
 // Периодический запрос предметов на земле
 setInterval(() => {
     if (mp.players.local.dimension !== undefined) {
@@ -2528,10 +2518,137 @@ mp.events.add('playerCommand', (command) => {
     }
 });
 
+// ===== СИСТЕМА МАГАЗИНОВ (КЛИЕНТ) =====
+
+let shopBrowser = null;
+let isShopOpen = false;
+
+// Показ подсказки при входе в зону магазина
+mp.events.add('client:showShopHint', (shopName, shopType) => {
+    mp.game.graphics.notify(`~b~${shopName}~n~~w~Нажмите ~g~E~w~ для входа`);
+    
+    // Показываем подсказку на HUD
+    if (typeof hudBrowser !== 'undefined' && hudBrowser) {
+        hudBrowser.execute(`showKeyHint('E', 'Войти в магазин', 'shop')`);
+    }
+});
+
+mp.events.add('client:hideShopHint', () => {
+    if (typeof hudBrowser !== 'undefined' && hudBrowser) {
+        hudBrowser.execute(`hideKeyHint('shop')`);
+    }
+});
+
+// Открытие магазина по E
+// ===== КЛАВИША E - ВЗАИМОДЕЙСТВИЕ =====
+mp.keys.bind(0x45, false, () => { // E key
+    // Блокируем если UI открыт
+    if (isChatActive || isInventoryOpen || isAdminPanelOpen) return;
+    if (isShopOpen || isPhoneOpen || isPlayerMenuOpen) return;
+    if (isAuthShown || isCharacterCreationShown || isCharacterSelectionShown) return;
+    if (!isSpawned) return;
+    
+    // Приоритет 1: Подбор предмета с земли
+    if (nearbyGroundItems.length > 0) {
+        const nearest = nearbyGroundItems[0];
+        if (nearest.distance <= 3) {
+            mp.events.callRemote('inventory:pickupItem', nearest.id);
+            return;
+        }
+    }
+    
+    // Приоритет 2: Открытие магазина (если рядом)
+    mp.events.callRemote('shop:open');
+});
+
+// Открытие интерфейса магазина
+mp.events.add('client:openShop', (shopDataJson, playerDataJson) => {
+    if (isShopOpen) return;
+    
+    try {
+        shopBrowser = mp.browsers.new('package://cef/shop/index.html');
+        
+        setTimeout(() => {
+            mp.gui.cursor.visible = true;
+            if (typeof mp.gui.cursor.show === 'function') {
+                mp.gui.cursor.show(true, true);
+            }
+            
+            mp.game.ui.displayRadar(false);
+            mp.players.local.freezePosition(true);
+            
+            if (shopBrowser) {
+                shopBrowser.execute(`loadShop('${shopDataJson.replace(/'/g, "\\'")}', '${playerDataJson.replace(/'/g, "\\'")}')`);
+            }
+        }, 300);
+        
+        isShopOpen = true;
+        
+    } catch (err) {
+        console.error('[Shop] Ошибка:', err);
+    }
+});
+
+// Закрытие магазина
+function closeShop() {
+    if (!isShopOpen) return;
+    
+    if (shopBrowser) {
+        shopBrowser.destroy();
+        shopBrowser = null;
+    }
+    
+    mp.gui.cursor.visible = false;
+    if (typeof mp.gui.cursor.show === 'function') {
+        mp.gui.cursor.show(false, false);
+    }
+    
+    mp.game.ui.displayRadar(true);
+    mp.players.local.freezePosition(false);
+    
+    isShopOpen = false;
+}
+
+mp.events.add('cef:closeShop', () => closeShop());
+
+// ESC закрывает магазин
+mp.keys.bind(0x1B, true, () => {
+    if (isShopOpen) {
+        closeShop();
+        return;
+    }
+});
+
+// Покупка товара
+mp.events.add('cef:buyItem', (productId, quantity, paymentType) => {
+    mp.events.callRemote('shop:buy', productId, quantity, paymentType);
+});
+
+// Заправка
+mp.events.add('cef:refuel', (amount) => {
+    mp.events.callRemote('shop:refuel', amount);
+});
+
+// Уведомления
+mp.events.add('client:shopNotify', (type, message) => {
+    if (shopBrowser) {
+        shopBrowser.execute(`showNotification('${type}', '${message}')`);
+    }
+    
+    const prefix = type === 'success' ? '~g~' : '~r~';
+    mp.game.graphics.notify(`${prefix}${message}`);
+});
+
+// Обновление баланса
+mp.events.add('client:updateShopBalance', (balanceJson) => {
+    if (shopBrowser) {
+        shopBrowser.execute(`updateBalance('${balanceJson}')`);
+    }
+});
+
+console.log('[Shop Client] ✅ Система магазинов загружена');
 console.log('[Test] Команды /testdlc, /testgta и /teststream загружены');
-
 console.log('[Test] Команды /testdlc и /testgta загружены');
-
 console.log('[HUD Client] ✅ Система HUD загружена');
 console.log('[LevelSystem Client] ✅ Система уровней загружена');
 console.log('[PlayerMenu Client] ✅ Система меню игрока загружена');
