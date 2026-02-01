@@ -229,7 +229,7 @@ mp.events.add('admin:banPlayer', async (player, targetId, reason, duration) => {
 });
 
 // ===== СПАВН ТРАНСПОРТА =====
-mp.events.add('admin:spawnVehicle', (player, model) => {
+mp.events.add('admin:spawnVehicle', async (player, model) => {
     if (!hasPermission(player, 'spawn_vehicle')) {
         player.call('client:adminNotify', ['error', 'Недостаточно прав!']);
         return;
@@ -257,7 +257,7 @@ mp.events.add('admin:spawnVehicle', (player, model) => {
 });
 
 // ===== ТЕЛЕПОРТАЦИЯ =====
-mp.events.add('admin:teleport', (player, x, y, z) => {
+mp.events.add('admin:teleport', async (player, x, y, z) => {
     if (!hasPermission(player, 'tp')) {
         player.call('client:adminNotify', ['error', 'Недостаточно прав!']);
         return;
@@ -270,7 +270,7 @@ mp.events.add('admin:teleport', (player, x, y, z) => {
 });
 
 // ===== ПОГОДА =====
-mp.events.add('admin:setWeather', (player, weather) => {
+mp.events.add('admin:setWeather', async (player, weather) => {
     if (!hasPermission(player, 'weather')) {
         player.call('client:adminNotify', ['error', 'Недостаточно прав!']);
         return;
@@ -284,7 +284,7 @@ mp.events.add('admin:setWeather', (player, weather) => {
 });
 
 // ===== ВРЕМЯ =====
-mp.events.add('admin:setTime', (player, hour, minute) => {
+mp.events.add('admin:setTime', async (player, hour, minute) => {
     if (!hasPermission(player, 'time')) {
         player.call('client:adminNotify', ['error', 'Недостаточно прав!']);
         return;
@@ -854,7 +854,7 @@ mp.events.add('admin:deleteAllVehicles', async (admin) => {
 });
 
 // ===== РЕМОНТ ТРАНСПОРТА =====
-mp.events.add('admin:repairVehicle', (admin, targetId) => {
+mp.events.add('admin:repairVehicle', async (admin, targetId) => {
     try {
         const target = mp.players.at(targetId);
         
