@@ -6,6 +6,8 @@ require('../objects');
 require('../shops');
 require('../npc-system');
 require('../quests');
+require('../safezones');
+require('../vehicle-rental');
 
 console.log('[Server] ✅ Все модули загружены!');
 

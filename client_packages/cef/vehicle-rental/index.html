@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аренда транспорта</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="rental-container">
+        <div class="rental-header">
+            <h1><i class="fas fa-car"></i> <span id="pointName">Аренда транспорта</span></h1>
+            <button class="close-btn" onclick="closeMenu()"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="rental-balance">
+            <div class="balance-item">
+                <i class="fas fa-wallet"></i>
+                <span>Наличные: $<span id="playerCash">0</span></span>
+            </div>
+            <div class="balance-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Карта: $<span id="playerBank">0</span></span>
+            </div>
+        </div>
+        
+        <!-- Текущая аренда -->
+        <div class="current-rental" id="currentRental" style="display: none;">
+            <h3><i class="fas fa-key"></i> Ваша аренда</h3>
+            <div class="rental-info">
+                <span id="currentVehicleName">-</span>
+                <span>Залог: $<span id="currentDeposit">0</span></span>
+            </div>
+            <button class="return-btn" onclick="returnVehicle()">
+                <i class="fas fa-undo"></i> Вернуть транспорт
+            </button>
+        </div>
+        
+        <!-- Категории -->
+        <div class="categories">
+            <button class="category-btn active" data-category="all">Все</button>
+            <button class="category-btn" data-category="moped">🛵 Мопеды</button>
+            <button class="category-btn" data-category="economy">🚗 Эконом</button>
+            <button class="category-btn" data-category="standard">🚙 Стандарт</button>
+        </div>
+        
+        <!-- Список транспорта -->
+        <div class="vehicles-list" id="vehiclesList">
+            <!-- Генерируется JS -->
+        </div>
+        
+        <!-- Уведомления -->
+        <div class="notification" id="notification"></div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

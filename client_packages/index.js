@@ -9,6 +9,11 @@ require('./quests/events.js');
 // ===== ПОДКЛЮЧЕНИЕ ТРЕКЕРА КВЕСТОВ =====
 require('./quests/tracker.js');
 
+// ===== ПОДКЛЮЧЕНИЕ СИСТЕМЫ БЕЗОПАСНЫХ ЗОН =====
+require('./safezones/index.js');
+
+require('./vehicle-rental/index.js');
+
 let authBrowser = null;
 let characterBrowser = null;
 let characterSelectionBrowser = null;
@@ -2919,6 +2924,43 @@ mp.keys.bind(0x45, false, () => { // E
     }
 });
 
+// ===== ЗАЩИТА NPC ОТ УРОНА =====
+
+const protectedPeds = new Set();
+let lastNPCWarning = 0;
+
+mp.events.add('npc:registerProtected', (pedHandle) => {
+    protectedPeds.add(pedHandle);
+    try {
+        mp.game.invoke('0x166E7CF68597D8B5', pedHandle, true);
+        mp.game.invoke('0x7A6535691B477C48', pedHandle, false);
+        mp.game.invoke('0x0F62619393661D6E', pedHandle, false, false);
+    } catch (err) {}
+});
+
+mp.events.add('render', () => {
+    const now = Date.now();
+    
+    protectedPeds.forEach(pedHandle => {
+        try {
+            mp.game.invoke('0x166E7CF68597D8B5', pedHandle, true);
+        } catch (err) {}
+    });
+});
+
+setInterval(() => {
+    mp.peds.forEachInStreamRange(ped => {
+        if (ped.handle === mp.players.local.handle) return;
+        try {
+            const pedType = mp.game.ped.getPedType(ped.handle);
+            if ([4, 5, 26, 27, 28].includes(pedType)) {
+                mp.game.invoke('0x166E7CF68597D8B5', ped.handle, true);
+            }
+        } catch (err) {}
+    });
+}, 2000);
+
+console.log('[NPC Protection] ✅ Защита NPC загружена');
 console.log('[Test] Команды /testdlc, /testgta и /teststream загружены');
 console.log('[Test] Команды /testdlc и /testgta загружены');
 console.log('[HUD Client] ✅ Система HUD загружена');

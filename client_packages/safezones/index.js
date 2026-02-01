@@ -15,10 +15,7 @@ mp.events.add('client:enterSafeZone', (zoneDataJson) => {
         
         // Уведомление
         mp.game.graphics.notify(`~g~Вы вошли в безопасную зону~w~\n${zone.name}`);
-        
-        // Показываем эффект
-        mp.game.graphics.startScreenEffect('MenuMGIn', 500, false);
-        
+                
         console.log(`[SafeZone] Вошёл в зону: ${zone.name}`);
         
     } catch (err) {

@@ -1,0 +1,265 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: rgba(0, 0, 0, 0.7);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.rental-container {
+    background: linear-gradient(135deg, rgba(20, 25, 35, 0.95), rgba(30, 35, 50, 0.95));
+    border-radius: 16px;
+    width: 500px;
+    max-height: 80vh;
+    overflow: hidden;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.rental-header {
+    background: linear-gradient(90deg, rgba(255, 193, 7, 0.2), transparent);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rental-header h1 {
+    color: #ffc107;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-btn {
+    background: rgba(244, 67, 54, 0.2);
+    border: none;
+    color: #f44336;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.close-btn:hover {
+    background: rgba(244, 67, 54, 0.4);
+    transform: rotate(90deg);
+}
+
+.rental-balance {
+    display: flex;
+    gap: 20px;
+    padding: 15px 20px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.balance-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #81c784;
+    font-size: 14px;
+}
+
+.balance-item i {
+    color: #4caf50;
+}
+
+.current-rental {
+    background: rgba(33, 150, 243, 0.15);
+    padding: 15px 20px;
+    border-left: 4px solid #2196f3;
+    margin: 10px 20px;
+    border-radius: 8px;
+}
+
+.current-rental h3 {
+    color: #64b5f6;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.rental-info {
+    display: flex;
+    justify-content: space-between;
+    color: white;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.return-btn {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(90deg, #2196f3, #1976d2);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.3s;
+}
+
+.return-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(33, 150, 243, 0.4);
+}
+
+.categories {
+    display: flex;
+    gap: 10px;
+    padding: 15px 20px;
+    overflow-x: auto;
+}
+
+.category-btn {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    white-space: nowrap;
+    transition: all 0.3s;
+}
+
+.category-btn:hover, .category-btn.active {
+    background: rgba(255, 193, 7, 0.2);
+    border-color: #ffc107;
+    color: #ffc107;
+}
+
+.vehicles-list {
+    padding: 10px 20px 20px;
+    max-height: 350px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.vehicle-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+}
+
+.vehicle-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 193, 7, 0.3);
+    transform: translateX(5px);
+}
+
+.vehicle-icon {
+    font-size: 32px;
+    width: 50px;
+    text-align: center;
+}
+
+.vehicle-info {
+    flex: 1;
+}
+
+.vehicle-name {
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.vehicle-price {
+    color: #81c784;
+    font-size: 13px;
+}
+
+.vehicle-price span {
+    color: #ffb74d;
+    margin-left: 10px;
+}
+
+.vehicle-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.rent-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s;
+}
+
+.rent-btn.cash {
+    background: linear-gradient(90deg, #4caf50, #388e3c);
+    color: white;
+}
+
+.rent-btn.card {
+    background: linear-gradient(90deg, #2196f3, #1976d2);
+    color: white;
+}
+
+.rent-btn:hover {
+    transform: scale(1.05);
+}
+
+.rent-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    display: none;
+    animation: slideIn 0.3s ease;
+    z-index: 1000;
+}
+
+.notification.success { background: linear-gradient(90deg, #4caf50, #388e3c); }
+.notification.error { background: linear-gradient(90deg, #f44336, #d32f2f); }
+.notification.warning { background: linear-gradient(90deg, #ff9800, #f57c00); }
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Скроллбар */
+.vehicles-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.vehicles-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.vehicles-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 193, 7, 0.5);
+    border-radius: 3px;
+}
