@@ -5,6 +5,7 @@ const security = require('../security');
 require('../objects');
 require('../shops');
 require('../npc-system');
+require('../quests');
 
 console.log('[Server] ✅ Все модули загружены!');
 

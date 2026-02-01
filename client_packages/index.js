@@ -2921,4 +2921,9 @@ console.log('  ✓ cef:loadAdminReports → admin:getAdminReports');
 
 // ===== ПОДКЛЮЧЕНИЕ СИСТЕМЫ NPC =====
 require('./npc-system/index.js');
+
+// ===== ПОДКЛЮЧЕНИЕ СИСТЕМЫ КВЕСТОВ =====
+require('./quests/manager.js');
+require('./quests/events.js');
+
 console.log('[Admin Extended Client] 🚀 Готов к работе!');

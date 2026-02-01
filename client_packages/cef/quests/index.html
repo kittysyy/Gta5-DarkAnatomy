@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quest Dialog</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="questDialog" class="quest-dialog hidden">
+        <div class="quest-container">
+            <div class="quest-header">
+                <h2 id="questTitle">Quest Title</h2>
+            </div>
+            <div class="quest-body">
+                <p id="questDescription">Quest description goes here...</p>
+                <div class="quest-rewards">
+                    <h3>Rewards:</h3>
+                    <ul id="rewardsList">
+                        <!-- Rewards will be populated here -->
+                    </ul>
+                </div>
+            </div>
+            <div class="quest-footer">
+                <button id="acceptBtn" class="btn btn-accept">Accept</button>
+                <button id="declineBtn" class="btn btn-decline">Decline</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
