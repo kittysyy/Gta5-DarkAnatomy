@@ -5,16 +5,21 @@ let currentCategory = 'all';
 
 // ===== ЗАГРУЗКА ДАННЫХ =====
 function loadRentalData(dataJson) {
+    console.log('[CEF Rental] Получен JSON:', dataJson);
+    
     try {
-        rentalData = JSON.parse(dataJson);
+        if (typeof dataJson === 'string') {
+            rentalData = JSON.parse(dataJson);
+        } else {
+            rentalData = dataJson;
+        }
         
-        console.log('Rental data loaded:', rentalData);
+        console.log('[CEF Rental] Распарсено:', rentalData);
         
         document.getElementById('pointName').textContent = rentalData.pointName || 'Аренда транспорта';
         document.getElementById('playerCash').textContent = formatNumber(rentalData.playerCash || 0);
         document.getElementById('playerBank').textContent = formatNumber(rentalData.playerBank || 0);
         
-        // Показываем текущую аренду
         if (rentalData.hasRental && rentalData.currentRental) {
             document.getElementById('currentRental').style.display = 'block';
             document.getElementById('currentVehicleName').textContent = rentalData.currentRental.name;
@@ -27,7 +32,7 @@ function loadRentalData(dataJson) {
         setupCategories();
         
     } catch (err) {
-        console.error('Ошибка загрузки данных:', err);
+        console.error('[CEF Rental] Ошибка:', err);
     }
 }
 
@@ -36,12 +41,14 @@ function renderVehicles() {
     const container = document.getElementById('vehiclesList');
     container.innerHTML = '';
     
-    if (!rentalData || !rentalData.vehicles || !Array.isArray(rentalData.vehicles)) {
-        console.error('Нет данных о транспорте');
+    if (!rentalData || !rentalData.vehicles) {
+        container.innerHTML = '<div style="color:#888;text-align:center;padding:20px;">Ошибка загрузки</div>';
         return;
     }
     
-    rentalData.vehicles.forEach(vehicle => {
+    const vehicles = Array.isArray(rentalData.vehicles) ? rentalData.vehicles : [];
+    
+    vehicles.forEach(vehicle => {
         if (currentCategory !== 'all' && vehicle.category !== currentCategory) return;
         
         const totalCost = vehicle.price + vehicle.deposit;
@@ -71,65 +78,62 @@ function renderVehicles() {
                 </button>
             </div>
         `;
-        
         container.appendChild(card);
     });
     
     if (container.children.length === 0) {
-        container.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">Нет доступного транспорта</div>';
+        container.innerHTML = '<div style="color:#888;text-align:center;padding:20px;">Нет транспорта</div>';
     }
 }
 
 // ===== КАТЕГОРИИ =====
 function setupCategories() {
     document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.onclick = () => {
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentCategory = btn.dataset.category;
             renderVehicles();
-        });
+        };
     });
 }
 
-// ===== АРЕНДА =====
 function rentVehicle(model, paymentType) {
     if (rentalData && rentalData.hasRental) {
         showNotification('error', 'У вас уже есть аренда!');
         return;
     }
-    
     mp.trigger('cef:rentVehicle', model, paymentType);
 }
 
-// ===== ВОЗВРАТ =====
 function returnVehicle() {
     mp.trigger('cef:returnVehicle');
 }
 
-// ===== ЗАКРЫТИЕ =====
 function closeMenu() {
     mp.trigger('cef:closeRentalMenu');
 }
 
-// ===== УВЕДОМЛЕНИЯ =====
 function showNotification(type, message) {
     const notif = document.getElementById('notification');
     notif.className = `notification ${type}`;
     notif.textContent = message;
     notif.style.display = 'block';
-    
-    setTimeout(() => {
-        notif.style.display = 'none';
-    }, 3000);
+    setTimeout(() => { notif.style.display = 'none'; }, 3000);
 }
 
-// ===== ФОРМАТИРОВАНИЕ =====
 function formatNumber(num) {
     return (num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-// ESC для закрытия
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeMenu();
 });
+
+// ===== СООБЩАЕМ ЧТО CEF ГОТОВ =====
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('[CEF Rental] DOM готов, отправляем сигнал');
+    mp.trigger('cef:rentalReady');
+});
+
+console.log('[CEF Rental] Script loaded');

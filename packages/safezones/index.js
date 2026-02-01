@@ -254,4 +254,25 @@ global.safeZoneSystem = {
     addZone: (zone) => safeZones.push(zone)
 };
 
+// ===== УБРАТЬ ОРУЖИЕ В ИНВЕНТАРЬ =====
+mp.events.add('safezone:hideWeapon', async (player) => {
+    if (!player || !mp.players.exists(player)) return;
+    if (!player.characterId) return;
+    
+    try {
+        // Получаем экипированное оружие из слота
+        const equippedWeapon = player.equippedWeapon;
+        
+        if (equippedWeapon && global.inventorySystem) {
+            // Снимаем оружие (убираем из рук, но оставляем в инвентаре)
+            player.removeAllWeapons();
+            player.equippedWeapon = null;
+            
+            console.log(`[SafeZone] ${player.name} убрал оружие в инвентарь`);
+        }
+    } catch (err) {
+        console.error('[SafeZone] Ошибка убирания оружия:', err);
+    }
+});
+
 console.log(`[SafeZone] ✅ Система загружена! Зон: ${safeZones.length}`);

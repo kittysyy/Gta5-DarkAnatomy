@@ -245,27 +245,34 @@ mp.events.add('rental:rent', async (player, model, paymentType) => {
         }
         
         // Создаём транспорт
-        const veh = mp.vehicles.new(
-            mp.joaat(model),
-            new mp.Vector3(spawnPoint.x, spawnPoint.y, spawnPoint.z),
-            {
-                heading: spawnPoint.heading,
-                color: [[255, 255, 255], [255, 255, 255]],
-                locked: false,
-                engine: false
-            }
-        );
-        
-        veh.setVariable('isRental', true);
-        veh.setVariable('rentalOwner', player.id);
-        veh.setVariable('rentalModel', model);
-        
-        rentedVehicles.set(player.id, {
-            vehicle: veh,
-            model: model,
-            deposit: vehicle.deposit,
-            rentTime: Date.now()
-        });
+		const veh = mp.vehicles.new(
+			mp.joaat(model),
+			new mp.Vector3(spawnPoint.x, spawnPoint.y, spawnPoint.z),
+			{
+				heading: spawnPoint.heading,
+				color: [[255, 255, 255], [255, 255, 255]],
+				locked: false,
+				engine: false
+			}
+		);
+
+		veh.setVariable('isRental', true);
+		veh.setVariable('rentalOwner', player.id);
+		veh.setVariable('rentalModel', model);
+
+		rentedVehicles.set(player.id, {
+			vehicle: veh,
+			model: model,
+			deposit: vehicle.deposit,
+			rentTime: Date.now()
+		});
+
+		// ТЕЛЕПОРТ ИГРОКА В АВТО
+		setTimeout(() => {
+			if (veh && mp.vehicles.exists(veh)) {
+				player.putIntoVehicle(veh, 0); // 0 = водительское место
+			}
+		}, 500);
         
         if (player.characterId) {
             await db.query(

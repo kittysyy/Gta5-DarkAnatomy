@@ -473,8 +473,10 @@ mp.events.add('server:selectCharacter', async (player, characterId) => {
         
         player.characterId = character.id;
         player.name = `${character.name}_${character.surname}`;
-        player.money = character.money;
-        player.bank = character.bank;
+        player.cash = character.money;   // было player.money
+		player.bank = character.bank;
+		
+		console.log(`[Server] 💰 Баланс загружен: cash=${player.cash}, bank=${player.bank}, из БД: money=${character.money}, bank=${character.bank}`);
 		
 		mp.events.call('character:loaded', player, character.id);
         

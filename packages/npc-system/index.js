@@ -8,25 +8,25 @@ function spawnAllNPCs() {
     
     npcConfigs.forEach(npc => {
         try {
-            // Правильный синтаксис для RAGE:MP
             const ped = mp.peds.new(
                 mp.joaat(npc.model),
                 new mp.Vector3(npc.position.x, npc.position.y, npc.position.z),
-                npc.position.h,  // heading - отдельный параметр!
-                0                // dimension
+                npc.position.h,
+                0
             );
             
             // Синхронизируемые переменные
             ped.setVariable('npcId', npc.id);
             ped.setVariable('npcType', npc.type);
             ped.setVariable('npcName', npc.name);
+            ped.setVariable('isServerNPC', true); // ДОБАВЛЕНО для заморозки
             
             // Локальные данные
             ped.npcData = npc.data;
             
             spawnedNPCs.push(ped);
             
-            console.log(`[NPC System] ✅ Создан NPC: ${npc.name} (ID: ${npc.id}) на позиции ${npc.position.x}, ${npc.position.y}, ${npc.position.z}`);
+            console.log(`[NPC System] ✅ Создан NPC: ${npc.name} (ID: ${npc.id})`);
         } catch (error) {
             console.error(`[NPC System] ❌ Ошибка создания NPC ${npc.id}:`, error);
         }
@@ -37,6 +37,14 @@ function spawnAllNPCs() {
 
 // Спавним при старте сервера
 spawnAllNPCs();
+
+// ===== ОТПРАВКА СПИСКА NPC НОВЫМ ИГРОКАМ =====
+mp.events.add('playerReady', (player) => {
+    setTimeout(() => {
+        const npcIds = spawnedNPCs.map(ped => ped.id);
+        player.call('client:registerServerNPCs', [JSON.stringify(npcIds)]);
+    }, 3000);
+});
 
 // ===== ОБРАБОТКА ВЗАИМОДЕЙСТВИЯ =====
 mp.events.add('npc:interact', (player, npcId) => {
@@ -54,7 +62,7 @@ mp.events.add('npc:interact', (player, npcId) => {
     console.log(`[NPC System] ${player.name} → ${npcName}`);
     
     if (npcType === 'shop') {
-        player.outputChatBox(`!{#00ff00}[${npcName}] Добро пожаловать!`);
+        player.outputChatBox(`!{#00ff00}[${npcName}] До��ро пожаловать!`);
     } else if (npcType === 'quest') {
         if (global.questSystem && ped.npcData?.questId) {
             global.questSystem.openQuestDialog(player, ped.npcData.questId);

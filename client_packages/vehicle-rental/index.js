@@ -3,6 +3,7 @@
 let rentalBrowser = null;
 let isRentalMenuOpen = false;
 let nearRentalNPC = false;
+let pendingRentalData = null;
 
 // ===== ПРОВЕРКА РАССТОЯНИЯ ДО NPC АРЕНДЫ =====
 setInterval(() => {
@@ -22,7 +23,6 @@ setInterval(() => {
         
         if (distance < 3.0) {
             foundNPC = true;
-            
             if (!nearRentalNPC) {
                 nearRentalNPC = true;
                 mp.game.graphics.notify('~y~Нажмите ~g~E~y~ для аренды транспорта');
@@ -35,10 +35,9 @@ setInterval(() => {
     }
 }, 500);
 
-// ===== КНОПКА E ДЛЯ ВЗАИМОДЕЙСТВИЯ =====
-mp.keys.bind(0x45, false, () => { // E
+// ===== КНОПКА E =====
+mp.keys.bind(0x45, false, () => {
     if (isRentalMenuOpen) return;
-    
     if (nearRentalNPC) {
         mp.events.callRemote('vehicle:rental:interact');
     }
@@ -48,26 +47,35 @@ mp.keys.bind(0x45, false, () => { // E
 mp.events.add('client:openRentalMenu', (menuDataJson) => {
     if (isRentalMenuOpen) return;
     
+    console.log('[VehicleRental] Открытие меню...');
+    
     try {
+        pendingRentalData = menuDataJson;
         rentalBrowser = mp.browsers.new('package://cef/vehicle-rental/index.html');
+        isRentalMenuOpen = true;
         
+        // Ждём загрузки браузера
         setTimeout(() => {
             mp.gui.cursor.visible = true;
             if (typeof mp.gui.cursor.show === 'function') {
                 mp.gui.cursor.show(true, true);
             }
-            
             mp.players.local.freezePosition(true);
-            
-            if (rentalBrowser) {
-                rentalBrowser.execute(`loadRentalData('${menuDataJson.replace(/'/g, "\\'")}')`);
-            }
-        }, 300);
-        
-        isRentalMenuOpen = true;
+        }, 200);
         
     } catch (err) {
         console.error('[VehicleRental] Ошибка:', err);
+    }
+});
+
+// ===== КОГДА CEF ГОТОВ - ОТПРАВЛЯЕМ ДАННЫЕ =====
+mp.events.add('cef:rentalReady', () => {
+    console.log('[VehicleRental] CEF готов, отправляем данные');
+    
+    if (rentalBrowser && pendingRentalData) {
+        const safeJson = pendingRentalData.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        rentalBrowser.execute(`loadRentalData('${safeJson}')`);
+        pendingRentalData = null;
     }
 });
 
@@ -86,18 +94,15 @@ function closeRentalMenu() {
     }
     
     mp.players.local.freezePosition(false);
-    
     isRentalMenuOpen = false;
+    pendingRentalData = null;
 }
 
 mp.events.add('client:closeRentalMenu', () => closeRentalMenu());
 mp.events.add('cef:closeRentalMenu', () => closeRentalMenu());
 
-// ESC для закрытия
 mp.keys.bind(0x1B, true, () => {
-    if (isRentalMenuOpen) {
-        closeRentalMenu();
-    }
+    if (isRentalMenuOpen) closeRentalMenu();
 });
 
 // ===== АРЕНДА =====
@@ -113,7 +118,8 @@ mp.events.add('cef:returnVehicle', () => {
 // ===== УВЕДОМЛЕНИЯ =====
 mp.events.add('client:rentalNotify', (type, message) => {
     if (rentalBrowser) {
-        rentalBrowser.execute(`showNotification('${type}', '${message.replace(/'/g, "\\'")}')`);
+        const safeMsg = message.replace(/'/g, "\\'");
+        rentalBrowser.execute(`showNotification('${type}', '${safeMsg}')`);
     }
     
     const prefix = type === 'success' ? '~g~' : type === 'error' ? '~r~' : '~y~';
