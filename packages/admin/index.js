@@ -248,7 +248,7 @@ mp.events.add('admin:spawnVehicle', (player, model) => {
         
         player.call('client:adminNotify', ['success', `Транспорт ${model} заспавнен`]);
         
-        logAdminAction(player.accountId, 'SPAWN_VEHICLE', '', `Model: ${model}`);
+        await logAdminAction(player.accountId, 'SPAWN_VEHICLE', '', `Model: ${model}`);
         
     } catch (err) {
         console.error('[Admin System] Ошибка спавна транспорта:', err);
@@ -266,7 +266,7 @@ mp.events.add('admin:teleport', (player, x, y, z) => {
     player.position = new mp.Vector3(x, y, z);
     player.call('client:adminNotify', ['success', 'Телепортация выполнена!']);
     
-    logAdminAction(player.accountId, 'TELEPORT', '', `X: ${x}, Y: ${y}, Z: ${z}`);
+    await logAdminAction(player.accountId, 'TELEPORT', '', `X: ${x}, Y: ${y}, Z: ${z}`);
 });
 
 // ===== ПОГОДА =====
@@ -280,7 +280,7 @@ mp.events.add('admin:setWeather', (player, weather) => {
     
     mp.players.broadcast(`!{#4caf50}[Сервер] Администратор изменил погоду на ${weather}`);
     
-    logAdminAction(player.accountId, 'SET_WEATHER', '', `Weather: ${weather}`);
+    await logAdminAction(player.accountId, 'SET_WEATHER', '', `Weather: ${weather}`);
 });
 
 // ===== ВРЕМЯ =====
@@ -294,7 +294,7 @@ mp.events.add('admin:setTime', (player, hour, minute) => {
     
     mp.players.broadcast(`!{#4caf50}[Сервер] Администратор изменил время на ${hour}:${minute.toString().padStart(2, '0')}`);
     
-    logAdminAction(player.accountId, 'SET_TIME', '', `Time: ${hour}:${minute}`);
+    await logAdminAction(player.accountId, 'SET_TIME', '', `Time: ${hour}:${minute}`);
 });
 
 // ===== ДЕНЬГИ =====
@@ -312,7 +312,7 @@ mp.events.add('admin:giveMoney', async (player, targetId, amount, type) => {
     }
     
     if (type !== 'cash' && type !== 'bank') {
-        player.call('client:adminNotify', ['error', 'Невер��ый тип валюты!']);
+        player.call('client:adminNotify', ['error', 'Неверный тип валюты!']);
         return;
     }
     
@@ -588,7 +588,7 @@ mp.events.add('admin:startSpectate', async (admin, targetId) => {
         
         admin.call('client:startSpectate', [targetId, target.position.x, target.position.y, target.position.z]);
         
-        logAdminAction(admin.accountId, 'spectate', `Начал слежку за ${target.socialClub}`);
+        await logAdminAction(admin.accountId, 'spectate', `Начал слежку за ${target.socialClub}`);
         
     } catch (err) {
         console.error('[Admin] Ошибка spectate:', err);
@@ -634,7 +634,7 @@ mp.events.add('admin:toggleInvisible', async (admin) => {
         
         admin.call('client:adminNotify', ['success', current ? 'Невидимость отключена' : 'Невидимость включена']);
         
-        logAdminAction(admin.accountId, 'invisible', current ? 'Отключил' : 'Включил');
+        await logAdminAction(admin.accountId, 'invisible', current ? 'Отключил' : 'Включил');
         
     } catch (err) {
         console.error('[Admin] Ошибка невидимости:', err);
@@ -652,7 +652,7 @@ mp.events.add('admin:toggleGodMode', async (admin) => {
         
         admin.call('client:adminNotify', ['success', current ? 'Бессмертие отключено' : 'Бессмертие включено']);
         
-        logAdminAction(admin.accountId, 'godmode', current ? 'Отключил' : 'Включил');
+        await logAdminAction(admin.accountId, 'godmode', current ? 'Отключил' : 'Включил');
         
     } catch (err) {
         console.error('[Admin] Ошибка godmode:', err);
@@ -671,7 +671,7 @@ mp.events.add('admin:toggleNoclip', async (admin) => {
         admin.call('client:toggleNoclip', [!current]);
         admin.call('client:adminNotify', ['success', current ? 'Noclip отключен' : 'Noclip включен']);
         
-        logAdminAction(admin.accountId, 'noclip', current ? 'Отключил' : 'Включил');
+        await logAdminAction(admin.accountId, 'noclip', current ? 'Отключил' : 'Включил');
         
     } catch (err) {
         console.error('[Admin] Ошибка noclip:', err);
@@ -802,7 +802,7 @@ mp.events.add('admin:giveWeapon', async (admin, targetId, weaponHash, ammo) => {
             admin.call('client:adminNotify', ['success', `Оружие выдано ${target.name}`]);
         }
         
-        logAdminAction(admin.accountId, 'give_weapon', target.socialClub, `Weapon: ${weaponHash}`);
+        await logAdminAction(admin.accountId, 'give_weapon', target.socialClub, `Weapon: ${weaponHash}`);
         
     } catch (err) {
         console.error('[Admin] Ошибка выдачи оружия:', err);
@@ -824,7 +824,7 @@ mp.events.add('admin:clearInventory', async (admin, targetId) => {
         
         target.call('client:updateInventory', [JSON.stringify([])]);
         
-        logAdminAction(admin.accountId, 'clear_inventory', `Character ID: ${target.characterId}, Игрок: ${target.socialClub}`);
+        await logAdminAction(admin.accountId, 'clear_inventory', `Character ID: ${target.characterId}, Игрок: ${target.socialClub}`);
         
         admin.call('client:adminNotify', ['success', `Инвентарь очищен у ${target.socialClub}`]);
         target.call('client:adminNotify', ['warning', 'Ваш инвентарь очищен администратором']);
@@ -844,12 +844,12 @@ mp.events.add('admin:deleteAllVehicles', async (admin) => {
             count++;
         });
         
-        logAdminAction(admin.accountId, 'delete_all_vehicles', `Удалено машин: ${count}`);
+        await logAdminAction(admin.accountId, 'delete_all_vehicles', `Удалено машин: ${count}`);
         
         admin.call('client:adminNotify', ['success', `Удалено машин: ${count}`]);
         
     } catch (err) {
-        console.error('[Admin] Ошибка уда��ения машин:', err);
+        console.error('[Admin] Ошибка удаления машин:', err);
     }
 });
 
@@ -870,7 +870,7 @@ mp.events.add('admin:repairVehicle', (admin, targetId) => {
         
         target.vehicle.repair();
         
-        logAdminAction(admin.accountId, 'repair_vehicle', `Игрок: ${target.socialClub}`);
+        await logAdminAction(admin.accountId, 'repair_vehicle', `Игрок: ${target.socialClub}`);
         
         admin.call('client:adminNotify', ['success', `Машина отремонтирована для ${target.socialClub}`]);
         target.call('client:adminNotify', ['success', 'Ваша машина отремонтирована']);
@@ -899,7 +899,7 @@ mp.events.add('admin:refuelVehicle', async (admin, targetId) => {
             target.vehicle.fuel = 100;
         }
         
-        logAdminAction(admin.accountId, 'refuel_vehicle', `Игрок: ${target.socialClub}`);
+        await logAdminAction(admin.accountId, 'refuel_vehicle', `Игрок: ${target.socialClub}`);
         
         admin.call('client:adminNotify', ['success', `Машина заправлена для ${target.socialClub}`]);
         target.call('client:adminNotify', ['success', 'Ваша машина заправлена']);
@@ -929,7 +929,7 @@ mp.events.add('admin:getOnlineStats', async (admin) => {
 // ===== САМЫЕ АКТИВНЫЕ ИГРОКИ =====
 mp.events.add('admin:getTopPlayers', async (admin) => {
     try {
-        let [players] = [];
+        let players = [];
         
         try {
             [players] = await db.query(`
