@@ -67,5 +67,14 @@ module.exports = {
     // Transactions
     TRANSACTIONS: {
         SUSPICIOUS_THRESHOLD: 100000 // Threshold for suspicious transactions
+    },
+    
+    // Phone System
+    PHONE: {
+        NUMBER_PREFIX: '555',
+        CALL_TIMEOUT_MS: 30000,
+        MAX_MESSAGES: 100,
+        MAX_CONTACTS: 200,
+        MAX_CALL_HISTORY: 50
     }
 };

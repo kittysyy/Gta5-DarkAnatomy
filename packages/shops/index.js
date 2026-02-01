@@ -30,7 +30,6 @@ async function initShops() {
             colshape.shopType = shop.type;
         });
         
-        console.log(`[Shops] ✅ Загружено магазинов: ${shopList.length}`);
     } catch (err) {
         console.error('[Shops] Ошибка инициализации:', err);
     }
@@ -290,5 +289,3 @@ mp.events.add('shop:open', async (player) => {
 
 // Загружаем магазины при старте
 setTimeout(initShops, 3000);
-
-console.log('[Shops] ✅ Система магазинов загружена');
