@@ -93,10 +93,10 @@ function handleShopNPC(player, npcConfig) {
 function handleQuestNPC(player, npcConfig) {
     const questData = npcConfig.data;
     const questId = questData.questId || 'unknown';
-    const questName = questData.questName || 'Неизвестный квест';
+    const questName = questData.questName || 'Unknown Quest';
     
-    // Отправляем сообщение игроку
-    player.outputChatBox(`!{#9c27b0}[${npcConfig.name}] У меня есть задание для тебя...`);
+    // Send message to player
+    player.outputChatBox(`!{#9c27b0}[${npcConfig.name}] I have a task for you...`);
     
     // Use the quest system to open quest dialog
     if (global.questSystem && typeof global.questSystem.openQuestDialog === 'function') {
@@ -104,7 +104,7 @@ function handleQuestNPC(player, npcConfig) {
         console.log(`[NPC System] Opened quest dialog "${questName}" for player ${player.name}`);
     } else {
         // Fallback if quest system is not loaded
-        player.outputChatBox(`!{#2196f3}[Система] Начат квест: ${questName} (ID: ${questId})`);
+        player.outputChatBox(`!{#2196f3}[System] Quest started: ${questName} (ID: ${questId})`);
         console.log(`[NPC System] Quest system not available, using fallback for quest "${questName}"`);
     }
 }
