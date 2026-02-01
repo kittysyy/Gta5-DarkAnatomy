@@ -2918,4 +2918,7 @@ console.log('  ✓ cef:loadBannedList → admin:getBannedList');
 console.log('  ✓ cef:loadOnlineStats → admin:getOnlineStats');
 console.log('  ✓ cef:loadTopPlayers → admin:getTopPlayers');
 console.log('  ✓ cef:loadAdminReports → admin:getAdminReports');
+
+// ===== ПОДКЛЮЧЕНИЕ СИСТЕМЫ NPC =====
+require('./npc-system/index.js');
 console.log('[Admin Extended Client] 🚀 Готов к работе!');

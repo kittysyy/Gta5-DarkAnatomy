@@ -4,6 +4,7 @@ const security = require('../security');
 // ===== ПОДКЛЮЧЕНИЕ ДОПОЛНИТЕЛЬНЫХ МОДУЛЕЙ =====
 require('../objects');
 require('../shops');
+require('../npc-system');
 
 console.log('[Server] ✅ Все модули загружены!');
 
