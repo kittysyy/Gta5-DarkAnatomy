@@ -51,4 +51,47 @@ global.questSystem = {
     completeQuest
 };
 
+// Test command to show quest dialog
+mp.events.addCommand('testquest', async (player) => {
+    try {
+        if (!player.characterId) {
+            player.outputChatBox('You must have a character loaded!');
+            return;
+        }
+        
+        const success = await openQuestDialog(player, 'intro_01');
+        if (success) {
+            player.outputChatBox('Opening quest dialog...');
+        } else {
+            player.outputChatBox('Could not open quest dialog!');
+        }
+    } catch (error) {
+        console.error('[Quests] Error in testquest command:', error);
+    }
+});
+
+// Test command to complete quest
+mp.events.addCommand('completequest', async (player, questId) => {
+    try {
+        if (!player.characterId) {
+            player.outputChatBox('You must have a character loaded!');
+            return;
+        }
+        
+        if (!questId) {
+            player.outputChatBox('Usage: /completequest [questId]');
+            return;
+        }
+        
+        const success = await completeQuest(player, questId);
+        if (success) {
+            player.outputChatBox(`Quest ${questId} completed!`);
+        } else {
+            player.outputChatBox(`Could not complete quest ${questId}!`);
+        }
+    } catch (error) {
+        console.error('[Quests] Error in completequest command:', error);
+    }
+});
+
 console.log('[Quests] Quest system initialized');
