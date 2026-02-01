@@ -1,5 +1,5 @@
 const { initializeDatabase } = require('./database');
-const { assignQuest, updateQuestStep, completeQuest, loadPlayerQuests, openQuestDialog } = require('./manager');
+const { assignQuest, updateQuestStep, completeQuest, loadPlayerQuests, openQuestDialog, getPlayerQuestsForMenu } = require('./manager');
 
 // Initialize database on server start
 initializeDatabase();
@@ -48,7 +48,8 @@ global.questSystem = {
     openQuestDialog,
     assignQuest,
     updateQuestStep,
-    completeQuest
+    completeQuest,
+	getPlayerQuestsForMenu
 };
 
 // Test command to show quest dialog

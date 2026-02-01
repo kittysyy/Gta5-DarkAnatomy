@@ -1,4 +1,9 @@
+// ===== ПОДКЛЮЧЕНИЕ СИСТЕМЫ NPC =====
+require('./npc-system/index.js');
 
+// ===== ПОДКЛЮЧЕНИЕ СИСТЕМЫ КВЕСТОВ =====
+require('./quests/manager.js');
+require('./quests/events.js');
 // Клиентская логика для системы авторизации и создания персонажа
 
 let authBrowser = null;
@@ -2149,6 +2154,24 @@ mp.events.add('client:setWaypoint', (x, y) => {
     mp.game.graphics.notify('~g~Маршрут проложен!');
 });
 
+// Когда меню открывается - запросить данные квестов
+mp.events.add('playerMenu:open', () => {
+    // ... существующий код открытия меню ...
+    
+    // Запросить квесты с сервера
+    mp.events.callRemote('quests:getForMenu');
+});
+
+// Или если используется команда/кнопка для открытия:
+mp.keys.bind(0x4D, false, () => { // M key
+    // Открыть меню
+    playerMenuBrowser.execute('openMenu()');
+    mp.gui.cursor.show(true, true);
+    
+    // Запросить квесты
+    mp.events.callRemote('quests:getForMenu');
+});
+
 // ===== МЕНЮ ИГРОКА (F2) =====
 
 let playerMenuBrowser = null;
@@ -2918,12 +2941,5 @@ console.log('  ✓ cef:loadBannedList → admin:getBannedList');
 console.log('  ✓ cef:loadOnlineStats → admin:getOnlineStats');
 console.log('  ✓ cef:loadTopPlayers → admin:getTopPlayers');
 console.log('  ✓ cef:loadAdminReports → admin:getAdminReports');
-
-// ===== ПОДКЛЮЧЕНИЕ СИСТЕМЫ NPC =====
-require('./npc-system/index.js');
-
-// ===== ПОДКЛЮЧЕНИЕ СИСТЕМЫ КВЕСТОВ =====
-require('./quests/manager.js');
-require('./quests/events.js');
 
 console.log('[Admin Extended Client] 🚀 Готов к работе!');

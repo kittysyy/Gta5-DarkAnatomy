@@ -216,6 +216,96 @@ function showNotification(type, message) {
     setTimeout(() => notif.remove(), 3000);
 }
 
+// ===== QUESTS SYSTEM =====
+let questsData = {
+    active: [],
+    completed: []
+};
+
+// Update quests data from server
+function updateQuestsData(data) {
+    questsData = data;
+    renderQuests();
+}
+
+// Render quests in UI
+function renderQuests() {
+    const activeList = document.getElementById('activeQuestsList');
+    const completedList = document.getElementById('completedQuestsList');
+    const noActive = document.getElementById('noActiveQuests');
+    const noCompleted = document.getElementById('noCompletedQuests');
+    
+    // Update counts
+    document.getElementById('activeQuestsCount').textContent = questsData.active.length;
+    document.getElementById('completedQuestsCount').textContent = questsData.completed.length;
+    
+    // Render active quests
+    if (questsData.active.length > 0) {
+        noActive.style.display = 'none';
+        activeList.innerHTML = questsData.active.map(quest => createQuestCard(quest, false)).join('');
+    } else {
+        noActive.style.display = 'block';
+        activeList.innerHTML = '';
+        activeList.appendChild(noActive);
+    }
+    
+    // Render completed quests
+    if (questsData.completed.length > 0) {
+        noCompleted.style.display = 'none';
+        completedList.innerHTML = questsData.completed.map(quest => createQuestCard(quest, true)).join('');
+    } else {
+        noCompleted.style.display = 'block';
+        completedList.innerHTML = '';
+        completedList.appendChild(noCompleted);
+    }
+}
+
+// Create quest card HTML
+function createQuestCard(quest, isCompleted) {
+    const progress = quest.steps > 0 ? Math.round((quest.step / quest.steps) * 100) : 0;
+    
+    return `
+        <div class="quest-card ${isCompleted ? 'completed' : ''}">
+            <div class="quest-card-header">
+                <div>
+                    <div class="quest-title">${quest.title}</div>
+                    <div class="quest-giver">От: ${quest.giver || 'Неизвестно'}</div>
+                </div>
+                <div class="quest-status ${isCompleted ? 'completed' : 'active'}">
+                    ${isCompleted ? 'Выполнено' : 'В процессе'}
+                </div>
+            </div>
+            <div class="quest-description">${quest.description}</div>
+            ${!isCompleted ? `
+                <div class="quest-progress">
+                    <div class="quest-progress-bar">
+                        <div class="quest-progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="quest-progress-text">Шаг ${quest.step} / ${quest.steps}</div>
+                </div>
+            ` : ''}
+            <div class="quest-reward">
+                <i class="fas fa-coins"></i>
+                <span>Награда: $${quest.reward?.money || 0}</span>
+            </div>
+        </div>
+    `;
+}
+
+// Listen for quests update from client
+if (typeof mp !== 'undefined') {
+    mp.events.add('playerMenu:updateQuests', (questsJson) => {
+        try {
+            const data = JSON.parse(questsJson);
+            updateQuestsData(data);
+        } catch (e) {
+            console.error('Error parsing quests data:', e);
+        }
+    });
+}
+
+console.log('[PlayerMenu] ✅ Quests system loaded');
+
 // ===== CLOSE =====
 function closeMenu() {
     if (typeof mp !== 'undefined') mp.trigger('cef:closePlayerMenu');

@@ -9,23 +9,46 @@
 </head>
 <body>
     <div class="menu-container">
-        <!-- Tabs -->
-        <div class="menu-tabs">
-            <button class="tab-btn active" onclick="switchTab('info')">
-                <i class="fas fa-user"></i> Персонаж
-            </button>
-            <button class="tab-btn" onclick="switchTab('skills')">
-                <i class="fas fa-star"></i> Навыки
-            </button>
-            <button class="close-btn" onclick="closeMenu()">
-                <i class="fas fa-times"></i>
-            </button>
+        <!-- Sidebar with tabs -->
+        <div class="menu-sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Dark Anatomy</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-tabs">
+                <button class="tab-btn active" onclick="switchTab('info')">
+                    <i class="fas fa-user"></i>
+                    <span>Персонаж</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('skills')">
+                    <i class="fas fa-star"></i>
+                    <span>Навыки</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('quests')">
+                    <i class="fas fa-scroll"></i>
+                    <span>Задания</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-footer">
+                <button class="close-btn" onclick="closeMenu()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Закрыть (ESC)</span>
+                </button>
+            </div>
         </div>
 
-        <!-- Content -->
-        <div class="menu-content">
+        <!-- Main Content -->
+        <div class="menu-main">
             <!-- Character Info Tab -->
             <div class="tab-content active" id="info-tab">
+                <div class="content-header">
+                    <h2><i class="fas fa-user"></i> Информация о персонаже</h2>
+                </div>
+                
                 <!-- Header with avatar -->
                 <div class="player-header">
                     <div class="player-avatar" id="playerAvatar">
@@ -37,99 +60,107 @@
                     </div>
                 </div>
 
-                <!-- Level & Experience -->
-                <div class="info-section">
-                    <div class="section-title"><i class="fas fa-chart-line"></i> Уровень и опыт</div>
-                    <div class="level-container">
-                        <div class="level-badge" id="playerLevel">1</div>
-                        <div class="level-info">
-                            <div class="level-text">Уровень <span id="levelNum">1</span></div>
-                            <div class="exp-bar">
-                                <div class="exp-fill" id="expFill" style="width: 0%"></div>
+                <div class="content-grid">
+                    <!-- Left Column -->
+                    <div class="content-column">
+                        <!-- Level & Experience -->
+                        <div class="info-section">
+                            <div class="section-title"><i class="fas fa-chart-line"></i> Уровень и опыт</div>
+                            <div class="level-container">
+                                <div class="level-badge" id="playerLevel">1</div>
+                                <div class="level-info">
+                                    <div class="level-text">Уровень <span id="levelNum">1</span></div>
+                                    <div class="exp-bar">
+                                        <div class="exp-fill" id="expFill" style="width: 0%"></div>
+                                    </div>
+                                    <div class="exp-text"><span id="currentExp">0</span> / <span id="maxExp">1000</span> XP</div>
+                                </div>
                             </div>
-                            <div class="exp-text"><span id="currentExp">0</span> / <span id="maxExp">1000</span> XP</div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Stats Grid -->
-                <div class="info-section">
-                    <div class="section-title"><i class="fas fa-info-circle"></i> Информация</div>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-birthday-cake"></i></div>
-                            <div class="stat-info">
-                                <div class="stat-label">Возраст</div>
-                                <div class="stat-value" id="playerAge">25 лет</div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-venus-mars"></i></div>
-                            <div class="stat-info">
-                                <div class="stat-label">Пол</div>
-                                <div class="stat-value" id="playerGender">Мужской</div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-clock"></i></div>
-                            <div class="stat-info">
-                                <div class="stat-label">Время в игре</div>
-                                <div class="stat-value" id="playTime">0 часов</div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-calendar"></i></div>
-                            <div class="stat-info">
-                                <div class="stat-label">Регистрация</div>
-                                <div class="stat-value" id="regDate">01.01.2024</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Faction & Job -->
-                <div class="info-section">
-                    <div class="section-title"><i class="fas fa-users"></i> Организация и работа</div>
-                    <div class="org-job-container">
-                        <div class="org-card">
-                            <div class="org-icon faction">
-                                <i class="fas fa-shield-alt" id="factionIcon"></i>
-                            </div>
-                            <div class="org-info">
-                                <div class="org-label">Фракция</div>
-                                <div class="org-name" id="factionName">Нет фракции</div>
-                                <div class="org-rank" id="factionRank"></div>
-                            </div>
-                        </div>
-                        <div class="org-card">
-                            <div class="org-icon job">
-                                <i class="fas fa-briefcase" id="jobIcon"></i>
-                            </div>
-                            <div class="org-info">
-                                <div class="org-label">Работа</div>
-                                <div class="org-name" id="jobName">Безработный</div>
-                                <div class="org-rank" id="jobSalary"></div>
+                        <!-- Stats Grid -->
+                        <div class="info-section">
+                            <div class="section-title"><i class="fas fa-info-circle"></i> Информация</div>
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-icon"><i class="fas fa-birthday-cake"></i></div>
+                                    <div class="stat-info">
+                                        <div class="stat-label">Возраст</div>
+                                        <div class="stat-value" id="playerAge">25 лет</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon"><i class="fas fa-venus-mars"></i></div>
+                                    <div class="stat-info">
+                                        <div class="stat-label">Пол</div>
+                                        <div class="stat-value" id="playerGender">Мужской</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                                    <div class="stat-info">
+                                        <div class="stat-label">Время в игре</div>
+                                        <div class="stat-value" id="playTime">0 часов</div>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon"><i class="fas fa-calendar"></i></div>
+                                    <div class="stat-info">
+                                        <div class="stat-label">Регистрация</div>
+                                        <div class="stat-value" id="regDate">01.01.2024</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Money -->
-                <div class="info-section">
-                    <div class="section-title"><i class="fas fa-wallet"></i> Финансы</div>
-                    <div class="money-container">
-                        <div class="money-card cash">
-                            <i class="fas fa-money-bill-wave"></i>
-                            <div class="money-info">
-                                <div class="money-label">Наличные</div>
-                                <div class="money-value" id="playerCash">$0</div>
+                    <!-- Right Column -->
+                    <div class="content-column">
+                        <!-- Faction & Job -->
+                        <div class="info-section">
+                            <div class="section-title"><i class="fas fa-users"></i> Организация и работа</div>
+                            <div class="org-job-container">
+                                <div class="org-card">
+                                    <div class="org-icon faction">
+                                        <i class="fas fa-shield-alt" id="factionIcon"></i>
+                                    </div>
+                                    <div class="org-info">
+                                        <div class="org-label">Фракция</div>
+                                        <div class="org-name" id="factionName">Нет фракции</div>
+                                        <div class="org-rank" id="factionRank"></div>
+                                    </div>
+                                </div>
+                                <div class="org-card">
+                                    <div class="org-icon job">
+                                        <i class="fas fa-briefcase" id="jobIcon"></i>
+                                    </div>
+                                    <div class="org-info">
+                                        <div class="org-label">Работа</div>
+                                        <div class="org-name" id="jobName">Безработный</div>
+                                        <div class="org-rank" id="jobSalary"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="money-card bank">
-                            <i class="fas fa-university"></i>
-                            <div class="money-info">
-                                <div class="money-label">Банк</div>
-                                <div class="money-value" id="playerBank">$0</div>
+
+                        <!-- Money -->
+                        <div class="info-section">
+                            <div class="section-title"><i class="fas fa-wallet"></i> Финансы</div>
+                            <div class="money-container">
+                                <div class="money-card cash">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <div class="money-info">
+                                        <div class="money-label">Наличные</div>
+                                        <div class="money-value" id="playerCash">$0</div>
+                                    </div>
+                                </div>
+                                <div class="money-card bank">
+                                    <i class="fas fa-university"></i>
+                                    <div class="money-info">
+                                        <div class="money-label">Банк</div>
+                                        <div class="money-value" id="playerBank">$0</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -138,8 +169,8 @@
 
             <!-- Skills Tab -->
             <div class="tab-content" id="skills-tab">
-                <div class="skills-header">
-                    <h2>Дерево навыков</h2>
+                <div class="content-header">
+                    <h2><i class="fas fa-star"></i> Дерево навыков</h2>
                     <div class="skill-points">
                         <i class="fas fa-star"></i>
                         <span>Очки навыков: <strong id="skillPoints">0</strong></span>
@@ -295,6 +326,56 @@
                                 </div>
                                 <div class="skill-level"><span id="luck_3_level">0</span>/5</div>
                                 <div class="skill-lock"><i class="fas fa-lock"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quests Tab -->
+            <div class="tab-content" id="quests-tab">
+                <div class="content-header">
+                    <h2><i class="fas fa-scroll"></i> Задания</h2>
+                    <div class="quests-stats">
+                        <div class="quest-stat">
+                            <i class="fas fa-tasks"></i>
+                            <span>Активных: <strong id="activeQuestsCount">0</strong></span>
+                        </div>
+                        <div class="quest-stat completed">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Выполнено: <strong id="completedQuestsCount">0</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quests-container">
+                    <!-- Active Quests -->
+                    <div class="quests-section">
+                        <div class="quests-section-title">
+                            <i class="fas fa-hourglass-half"></i>
+                            <span>Активные задания</span>
+                        </div>
+                        <div class="quests-list" id="activeQuestsList">
+                            <!-- Quests will be added here dynamically -->
+                            <div class="no-quests" id="noActiveQuests">
+                                <i class="fas fa-inbox"></i>
+                                <p>Нет активных заданий</p>
+                                <span>Поговорите с NPC чтобы получить задание</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Completed Quests -->
+                    <div class="quests-section">
+                        <div class="quests-section-title">
+                            <i class="fas fa-trophy"></i>
+                            <span>Выполненные задания</span>
+                        </div>
+                        <div class="quests-list completed-list" id="completedQuestsList">
+                            <div class="no-quests" id="noCompletedQuests">
+                                <i class="fas fa-medal"></i>
+                                <p>Нет выполненных заданий</p>
+                                <span>Выполняйте задания чтобы получать награды</span>
                             </div>
                         </div>
                     </div>

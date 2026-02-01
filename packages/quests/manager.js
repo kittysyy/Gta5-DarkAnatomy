@@ -230,11 +230,62 @@ async function openQuestDialog(player, questId) {
     }
 }
 
+
+
+/**
+ * Get all quests for player menu (active + completed)
+ * @param {Object} player - The player object
+ * @returns {Promise<Object>} - Object with active and completed quests
+ */
+async function getPlayerQuestsForMenu(player) {
+    try {
+        if (!player.characterId) {
+            return { active: [], completed: [] };
+        }
+
+        // Get all quests for this character
+        const [rows] = await db.query(
+            'SELECT quest_id, status, step FROM character_quests WHERE character_id = ?',
+            [player.characterId]
+        );
+
+        const active = [];
+        const completed = [];
+
+        rows.forEach(row => {
+            const questDef = quests[row.quest_id];
+            if (!questDef) return;
+
+            const questData = {
+                questId: row.quest_id,
+                title: questDef.title,
+                description: questDef.description,
+                step: row.step,
+                steps: questDef.steps || 1,
+                reward: questDef.reward,
+                giver: questDef.giver || 'NPC'
+            };
+
+            if (row.status === 0) {
+                active.push(questData);
+            } else {
+                completed.push(questData);
+            }
+        });
+
+        return { active, completed };
+    } catch (error) {
+        console.error('[Quests] Error getting quests for menu:', error);
+        return { active: [], completed: [] };
+    }
+}
+
 module.exports = {
     assignQuest,
     updateQuestStep,
     completeQuest,
     hasQuest,
     loadPlayerQuests,
-    openQuestDialog
+    openQuestDialog,
+    getPlayerQuestsForMenu  // <-- добавить
 };
