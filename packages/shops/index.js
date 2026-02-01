@@ -134,7 +134,6 @@ mp.events.add('clothingShop:open', async (player) => {
         };
         
         player.call('client:openClothingShop', [JSON.stringify(shopData), JSON.stringify(playerData)]);
-        console.log(`[Shops] ${player.name} открыл магазин одежды: ${shop.name}`);
         
     } catch (err) {
         console.error('[Shops] Ошибка открытия магазина одежды:', err);
@@ -156,7 +155,6 @@ mp.events.add('clothingShop:tryOn', async (player, itemId) => {
         const item = items[0];
         let clothingData = null;
         
-        // Пробуем model_data, потом clothing_data
         if (item.model_data) {
             clothingData = typeof item.model_data === 'string' ? JSON.parse(item.model_data) : item.model_data;
         } else if (item.clothing_data) {
@@ -165,22 +163,28 @@ mp.events.add('clothingShop:tryOn', async (player, itemId) => {
         
         if (!clothingData) return;
         
-        const isProp = clothingData.isProp || clothingData.propId !== undefined;
-        const componentId = isProp ? clothingData.propId : clothingData.componentId;
+        const isProp = clothingData.propId !== undefined;
         const drawable = clothingData.drawable || 0;
         const texture = clothingData.texture || 0;
         
-        // Для топов (componentId === 11) автоматически применяем правильный торс
-        if (!isProp && componentId === 11) {
-            const torsoDrawable = getBestTorso(drawable);
-            player.call('client:clothingShop:applyTop', [drawable, texture, torsoDrawable]);
-            console.log(`[Shops] Примерка топа ${drawable} с торсом ${torsoDrawable}`);
-        } else if (isProp) {
-            player.call('client:clothingShop:applyProp', [componentId, drawable, texture]);
+        if (isProp) {
+            player.call('client:clothingShop:applyProp', [clothingData.propId, drawable, texture]);
         } else {
-            player.call('client:clothingShop:applyComponent', [componentId, drawable, texture]);
+            const componentId = clothingData.componentId;
+            
+            if (componentId === 11) {
+                const { getBestTorso } = require('./clothingData');
+                const torsoData = getBestTorso(drawable, texture);
+                
+                if (torsoData) {
+                    player.call('client:clothingShop:applyTop', [drawable, texture, torsoData.torsoDrawable, torsoData.torsoTexture]);
+                } else {
+                    player.call('client:clothingShop:applyTopNoTorso', [drawable, texture]);
+                }
+            } else {
+                player.call('client:clothingShop:applyComponent', [componentId, drawable, texture]);
+            }
         }
-        
     } catch (err) {
         console.error('[Shops] Ошибка примерки:', err);
     }
@@ -265,8 +269,6 @@ mp.events.add('clothingShop:buy', async (player, productId, quantity, paymentTyp
             cash: newBalance[0]?.money || 0,
             bank: newBalance[0]?.bank || 0
         })]);
-        
-        console.log(`[Shops] ${player.name} купил ${product.name} x${quantity} за $${finalPrice}`);
         
     } catch (err) {
         console.error('[Shops] Ошибка покупки:', err);

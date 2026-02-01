@@ -2818,34 +2818,42 @@ mp.events.add('cef:clothingShop:close', () => {
 
 // Примерка одежды
 mp.events.add('cef:clothingShop:tryOn', (itemId) => {
-    console.log('[ClothingShop] Отправка запроса примерки:', itemId);
     mp.events.callRemote('clothingShop:tryOn', itemId);
 });
 
-// Применить топ с торсом (новый обработчик)
-mp.events.add('client:clothingShop:applyTop', (topDrawable, topTexture, torsoDrawable) => {
+// ===== ОБРАБОТЧИКИ ПРИМЕРКИ ОДЕЖДЫ =====
+
+mp.events.add('client:clothingShop:applyTop', (topDrawable, topTexture, torsoDrawable, torsoTexture) => {
     const player = mp.players.local;
-    player.setComponentVariation(3, parseInt(torsoDrawable), 0, 0);  // Торс
-    player.setComponentVariation(8, 15, 0, 0);  // Undershirt = none
-    player.setComponentVariation(11, parseInt(topDrawable), parseInt(topTexture), 0);  // Top
-    console.log('[ClothingShop] Топ применён:', topDrawable, topTexture, 'с торсом:', torsoDrawable);
+    try {
+        player.setComponentVariation(3, parseInt(torsoDrawable), parseInt(torsoTexture), 0);
+        player.setComponentVariation(11, parseInt(topDrawable), parseInt(topTexture), 0);
+    } catch (err) {}
 });
 
-// Применить обычный компонент (новый обработчик)
+mp.events.add('client:clothingShop:applyTopNoTorso', (topDrawable, topTexture) => {
+    const player = mp.players.local;
+    try {
+        player.setComponentVariation(11, parseInt(topDrawable), parseInt(topTexture), 0);
+    } catch (err) {}
+});
+
 mp.events.add('client:clothingShop:applyComponent', (componentId, drawable, texture) => {
-    mp.players.local.setComponentVariation(parseInt(componentId), parseInt(drawable), parseInt(texture), 0);
-    console.log('[ClothingShop] Компонент применён:', componentId, drawable, texture);
+    const player = mp.players.local;
+    try {
+        player.setComponentVariation(parseInt(componentId), parseInt(drawable), parseInt(texture), 0);
+    } catch (err) {}
 });
 
-// Применить проп (новый обработчик)
 mp.events.add('client:clothingShop:applyProp', (propId, drawable, texture) => {
     const player = mp.players.local;
-    if (parseInt(drawable) >= 0) {
-        player.setPropIndex(parseInt(propId), parseInt(drawable), parseInt(texture), true);
-    } else {
-        player.clearProp(parseInt(propId));
-    }
-    console.log('[ClothingShop] Проп применён:', propId, drawable, texture);
+    try {
+        if (parseInt(drawable) >= 0) {
+            player.setPropIndex(parseInt(propId), parseInt(drawable), parseInt(texture), true);
+        } else {
+            player.clearProp(parseInt(propId));
+        }
+    } catch (err) {}
 });
 
 // Покупка
