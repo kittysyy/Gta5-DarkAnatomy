@@ -20,8 +20,12 @@ mp.events.add('quest:showDialog', (questDataJson) => {
         mp.gui.cursor.show(true, true);
         cursorVisible = true;
         
-        // Send quest data to CEF - escape the JSON string properly
-        const escapedJson = questDataJson.replace(/'/g, "\\'").replace(/\n/g, "\\n");
+        // Send quest data to CEF - properly escape the JSON string
+        const escapedJson = questDataJson
+            .replace(/\\/g, "\\\\")  // Escape backslashes first
+            .replace(/'/g, "\\'")     // Escape single quotes
+            .replace(/\n/g, "\\n")    // Escape newlines
+            .replace(/\r/g, "\\r");   // Escape carriage returns
         questBrowser.execute(`showQuestDialog('${escapedJson}')`);
         
         console.log('[Quests] Showing quest dialog');
