@@ -33,10 +33,10 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(0, 0, 0, 0.5);
+    /* ПРОЗРАЧНЫЙ ФОН */
+    background: transparent;
     padding: 6px 12px;
     border-radius: 20px;
-    backdrop-filter: blur(10px);
     min-width: 180px;
 }
 
@@ -48,31 +48,35 @@ body {
     justify-content: center;
     font-size: 12px;
     border-radius: 50%;
+    /* Легкий фон только для иконок */
+    background: rgba(0, 0, 0, 0.3);
 }
 
-.status-bar.health .bar-icon { background: rgba(244, 67, 54, 0.3); color: #f44336; }
-.status-bar.armor .bar-icon { background: rgba(33, 150, 243, 0.3); color: #2196f3; }
-.status-bar.hunger .bar-icon { background: rgba(255, 152, 0, 0.3); color: #ff9800; }
-.status-bar.thirst .bar-icon { background: rgba(0, 188, 212, 0.3); color: #00bcd4; }
+.status-bar.health .bar-icon { color: #f44336; }
+.status-bar.armor .bar-icon { color: #2196f3; }
+.status-bar.hunger .bar-icon { color: #ff9800; }
+.status-bar.thirst .bar-icon { color: #00bcd4; }
 
 .bar-container {
     flex: 1;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 3px;
     overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .bar-fill {
     height: 100%;
-    border-radius: 4px;
+    border-radius: 3px;
     transition: width 0.3s ease, background 0.3s ease;
+    box-shadow: 0 0 8px currentColor;
 }
 
-.status-bar.health .bar-fill { background: linear-gradient(90deg, #f44336, #e91e63); }
-.status-bar.armor .bar-fill { background: linear-gradient(90deg, #2196f3, #03a9f4); }
-.status-bar.hunger .bar-fill { background: linear-gradient(90deg, #ff9800, #ffc107); }
-.status-bar.thirst .bar-fill { background: linear-gradient(90deg, #00bcd4, #4dd0e1); }
+.status-bar.health .bar-fill { background: #f44336; box-shadow: 0 0 10px rgba(244, 67, 54, 0.6); }
+.status-bar.armor .bar-fill { background: #2196f3; box-shadow: 0 0 10px rgba(33, 150, 243, 0.6); }
+.status-bar.hunger .bar-fill { background: #ff9800; box-shadow: 0 0 10px rgba(255, 152, 0, 0.6); }
+.status-bar.thirst .bar-fill { background: #00bcd4; box-shadow: 0 0 10px rgba(0, 188, 212, 0.6); }
 
 .bar-fill.critical { animation: pulse 0.5s infinite; }
 
@@ -86,6 +90,7 @@ body {
     font-weight: 600;
     min-width: 28px;
     text-align: right;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 /* ===== ДЕНЬГИ ===== */
@@ -99,9 +104,9 @@ body {
     align-items: center;
     gap: 8px;
     padding: 8px 14px;
-    background: rgba(0, 0, 0, 0.5);
+    /* ПРОЗРАЧНЫЙ ФОН */
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 12px;
-    backdrop-filter: blur(10px);
     font-size: 14px;
     font-weight: 600;
 }
@@ -109,8 +114,8 @@ body {
 .money-item.cash i { color: #4caf50; }
 .money-item.bank i { color: #2196f3; }
 
-.money-item.cash span { color: #81c784; }
-.money-item.bank span { color: #64b5f6; }
+.money-item.cash span { color: #81c784; text-shadow: 0 0 10px rgba(76, 175, 80, 0.5); }
+.money-item.bank span { color: #64b5f6; text-shadow: 0 0 10px rgba(33, 150, 243, 0.5); }
 
 /* ===== УРОВЕНЬ ===== */
 .level-display {
@@ -118,9 +123,9 @@ body {
     align-items: center;
     gap: 10px;
     padding: 8px 14px;
-    background: rgba(0, 0, 0, 0.5);
+    /* ПРОЗРАЧНЫЙ ФОН */
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 12px;
-    backdrop-filter: blur(10px);
 }
 
 .level-badge {
@@ -145,7 +150,7 @@ body {
 
 .exp-bar {
     height: 6px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.4);
     border-radius: 3px;
     overflow: hidden;
 }
@@ -155,11 +160,13 @@ body {
     background: linear-gradient(90deg, #ffd700, #ff8c00);
     border-radius: 3px;
     transition: width 0.5s ease;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 .exp-text {
     font-size: 10px;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 /* ===== СПИДОМЕТР ===== */
@@ -223,6 +230,7 @@ body {
     font-size: 36px;
     font-weight: 700;
     line-height: 1;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
 }
 
 .speed-unit {
@@ -231,10 +239,10 @@ body {
 }
 
 .vehicle-info {
-    background: rgba(0, 0, 0, 0.5);
+    /* ПРОЗРАЧНЫЙ ФОН */
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 12px;
     padding: 12px;
-    backdrop-filter: blur(10px);
     min-width: 160px;
 }
 
@@ -244,6 +252,7 @@ body {
     text-align: center;
     margin-bottom: 10px;
     color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 .vehicle-stats {
@@ -267,7 +276,7 @@ body {
 .stat-bar {
     flex: 1;
     height: 6px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.4);
     border-radius: 3px;
     overflow: hidden;
 }
@@ -278,8 +287,8 @@ body {
     transition: width 0.3s ease;
 }
 
-.stat-fill.fuel { background: linear-gradient(90deg, #ff9800, #ffc107); }
-.stat-fill.engine { background: linear-gradient(90deg, #4caf50, #8bc34a); }
+.stat-fill.fuel { background: #ff9800; box-shadow: 0 0 8px rgba(255, 152, 0, 0.5); }
+.stat-fill.engine { background: #4caf50; box-shadow: 0 0 8px rgba(76, 175, 80, 0.5); }
 
 .vehicle-controls {
     display: flex;
@@ -291,7 +300,7 @@ body {
 .control-item {
     width: 32px;
     height: 32px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -327,15 +336,16 @@ body {
 }
 
 .location-info {
-    background: rgba(0, 0, 0, 0.5);
+    /* ПРОЗРАЧНЫЙ ФОН */
+    background: rgba(0, 0, 0, 0.3);
     padding: 10px 14px;
     border-radius: 10px;
-    backdrop-filter: blur(10px);
 }
 
 .street-name {
     font-size: 14px;
     font-weight: 600;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .zone-name {
@@ -349,9 +359,8 @@ body {
     justify-content: center;
     width: 40px;
     height: 40px;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 50%;
-    backdrop-filter: blur(10px);
 }
 
 .compass-direction {
@@ -364,11 +373,11 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.3);
     padding: 8px 12px;
     border-radius: 10px;
-    backdrop-filter: blur(10px);
     font-size: 13px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .time-display i {
@@ -392,7 +401,7 @@ body {
     align-items: flex-start;
     gap: 12px;
     padding: 14px 18px;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.7);
     border-radius: 12px;
     backdrop-filter: blur(20px);
     border-left: 4px solid;
@@ -443,6 +452,7 @@ body {
     font-size: 14px;
     font-weight: 600;
     margin-bottom: 3px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .notification-message {
@@ -451,30 +461,15 @@ body {
     line-height: 1.4;
 }
 
-.notification-progress {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 0 0 12px 12px;
-    animation: progressShrink linear forwards;
-}
-
-@keyframes progressShrink {
-    from { width: 100%; }
-    to { width: 0%; }
-}
-
 /* ===== ИНФОРМАЦИЯ О СЕРВЕРЕ ===== */
 .server-info {
     position: fixed;
     top: 20px;
     left: 20px;
-    background: rgba(0, 0, 0, 0.5);
+    /* ПРОЗРАЧНЫЙ ФОН */
+    background: rgba(0, 0, 0, 0.3);
     padding: 12px 16px;
     border-radius: 12px;
-    backdrop-filter: blur(10px);
 }
 
 .server-name {
@@ -482,6 +477,7 @@ body {
     font-weight: 700;
     color: #ffd700;
     margin-bottom: 5px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 .player-count, .player-id {
@@ -497,10 +493,9 @@ body {
     display: none;
     align-items: center;
     gap: 10px;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.3);
     padding: 10px 14px;
     border-radius: 12px;
-    backdrop-filter: blur(10px);
 }
 
 .voice-indicator.active {
@@ -549,10 +544,9 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.5);
     padding: 8px 14px;
     border-radius: 8px;
-    backdrop-filter: blur(10px);
     animation: fadeIn 0.3s ease;
 }
 

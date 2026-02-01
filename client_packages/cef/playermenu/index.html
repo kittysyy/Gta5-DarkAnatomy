@@ -333,54 +333,72 @@
             </div>
 
             <!-- Quests Tab -->
-            <div class="tab-content" id="quests-tab">
-                <div class="content-header">
-                    <h2><i class="fas fa-scroll"></i> Задания</h2>
-                    <div class="quests-stats">
-                        <div class="quest-stat">
-                            <i class="fas fa-tasks"></i>
-                            <span>Активных: <strong id="activeQuestsCount">0</strong></span>
-                        </div>
-                        <div class="quest-stat completed">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Выполнено: <strong id="completedQuestsCount">0</strong></span>
-                        </div>
-                    </div>
-                </div>
+			<div class="tab-content" id="quests-tab">
+				<div class="content-header">
+					<h2><i class="fas fa-scroll"></i> Задания</h2>
+					<div class="quests-stats">
+						<div class="quest-stat">
+							<i class="fas fa-tasks"></i>
+							<span>Активных: <strong id="activeQuestsCount">0</strong></span>
+						</div>
+						<div class="quest-stat completed">
+							<i class="fas fa-check-circle"></i>
+							<span>Выполнено: <strong id="completedQuestsCount">0</strong></span>
+						</div>
+					</div>
+				</div>
 
-                <div class="quests-container">
-                    <!-- Active Quests -->
-                    <div class="quests-section">
-                        <div class="quests-section-title">
-                            <i class="fas fa-hourglass-half"></i>
-                            <span>Активные задания</span>
-                        </div>
-                        <div class="quests-list" id="activeQuestsList">
-                            <!-- Quests will be added here dynamically -->
-                            <div class="no-quests" id="noActiveQuests">
-                                <i class="fas fa-inbox"></i>
-                                <p>Нет активных заданий</p>
-                                <span>Поговорите с NPC чтобы получить задание</span>
-                            </div>
-                        </div>
-                    </div>
+				<!-- Category Filters -->
+				<div class="quest-filters">
+					<button class="filter-btn active" data-filter="all" onclick="filterQuests('all')">
+						<i class="fas fa-list"></i> Все
+					</button>
+					<button class="filter-btn" data-filter="main" onclick="filterQuests('main')">
+						<i class="fas fa-exclamation-circle"></i> Сюжетные
+					</button>
+					<button class="filter-btn" data-filter="side" onclick="filterQuests('side')">
+						<i class="fas fa-map-signs"></i> Побочные
+					</button>
+					<button class="filter-btn" data-filter="daily" onclick="filterQuests('daily')">
+						<i class="fas fa-calendar-day"></i> Ежедневные
+					</button>
+					<button class="filter-btn" data-filter="faction" onclick="filterQuests('faction')">
+						<i class="fas fa-users"></i> Фракционные
+					</button>
+				</div>
 
-                    <!-- Completed Quests -->
-                    <div class="quests-section">
-                        <div class="quests-section-title">
-                            <i class="fas fa-trophy"></i>
-                            <span>Выполненные задания</span>
-                        </div>
-                        <div class="quests-list completed-list" id="completedQuestsList">
-                            <div class="no-quests" id="noCompletedQuests">
-                                <i class="fas fa-medal"></i>
-                                <p>Нет выполненных заданий</p>
-                                <span>Выполняйте задания чтобы получать награды</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+				<div class="quests-container">
+					<!-- Active Quests -->
+					<div class="quests-section">
+						<div class="quests-section-title">
+							<i class="fas fa-hourglass-half"></i>
+							<span>Активные задания</span>
+						</div>
+						<div class="quests-list" id="activeQuestsList">
+							<div class="no-quests" id="noActiveQuests">
+								<i class="fas fa-inbox"></i>
+								<p>Нет активных заданий</p>
+								<span>Поговорите с NPC чтобы получить задание</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Completed Quests -->
+					<div class="quests-section">
+						<div class="quests-section-title">
+							<i class="fas fa-trophy"></i>
+							<span>Выполненные задания</span>
+						</div>
+						<div class="quests-list completed-list" id="completedQuestsList">
+							<div class="no-quests" id="noCompletedQuests">
+								<i class="fas fa-medal"></i>
+								<p>Нет выполненных заданий</p>
+								<span>Выполняйте задания чтобы получать награды</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
         </div>
     </div>
 

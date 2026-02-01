@@ -221,10 +221,27 @@ let questsData = {
     active: [],
     completed: []
 };
+let currentFilter = 'all';
+let trackedQuestId = null;
 
 // Update quests data from server
 function updateQuestsData(data) {
     questsData = data;
+    renderQuests();
+}
+
+// Filter quests by category
+function filterQuests(category) {
+    currentFilter = category;
+    
+    // Update filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.filter === category) {
+            btn.classList.add('active');
+        }
+    });
+    
     renderQuests();
 }
 
@@ -235,61 +252,170 @@ function renderQuests() {
     const noActive = document.getElementById('noActiveQuests');
     const noCompleted = document.getElementById('noCompletedQuests');
     
+    // Filter quests
+    let filteredActive = questsData.active;
+    let filteredCompleted = questsData.completed;
+    
+    if (currentFilter !== 'all') {
+        filteredActive = questsData.active.filter(q => q.category === currentFilter);
+        filteredCompleted = questsData.completed.filter(q => q.category === currentFilter);
+    }
+    
     // Update counts
     document.getElementById('activeQuestsCount').textContent = questsData.active.length;
     document.getElementById('completedQuestsCount').textContent = questsData.completed.length;
     
     // Render active quests
-    if (questsData.active.length > 0) {
-        noActive.style.display = 'none';
-        activeList.innerHTML = questsData.active.map(quest => createQuestCard(quest, false)).join('');
+    activeList.innerHTML = '';
+    if (filteredActive.length > 0) {
+        filteredActive.forEach(quest => {
+            activeList.innerHTML += createQuestCard(quest, false);
+        });
     } else {
-        noActive.style.display = 'block';
-        activeList.innerHTML = '';
-        activeList.appendChild(noActive);
+        const noQuestsEl = document.createElement('div');
+        noQuestsEl.className = 'no-quests';
+        noQuestsEl.id = 'noActiveQuests';
+        noQuestsEl.innerHTML = `
+            <i class="fas fa-inbox"></i>
+            <p>Нет активных заданий</p>
+            <span>Поговорите с NPC чтобы получить задание</span>
+        `;
+        activeList.appendChild(noQuestsEl);
     }
     
     // Render completed quests
-    if (questsData.completed.length > 0) {
-        noCompleted.style.display = 'none';
-        completedList.innerHTML = questsData.completed.map(quest => createQuestCard(quest, true)).join('');
+    completedList.innerHTML = '';
+    if (filteredCompleted.length > 0) {
+        filteredCompleted.forEach(quest => {
+            completedList.innerHTML += createQuestCard(quest, true);
+        });
     } else {
-        noCompleted.style.display = 'block';
-        completedList.innerHTML = '';
-        completedList.appendChild(noCompleted);
+        const noQuestsEl = document.createElement('div');
+        noQuestsEl.className = 'no-quests';
+        noQuestsEl.id = 'noCompletedQuests';
+        noQuestsEl.innerHTML = `
+            <i class="fas fa-medal"></i>
+            <p>Нет выполненных заданий</p>
+            <span>Выполняйте задания чтобы получать награды</span>
+        `;
+        completedList.appendChild(noQuestsEl);
     }
+}
+
+// Get category info
+function getCategoryInfo(category) {
+    const categories = {
+        main: { icon: 'fa-exclamation-circle', name: 'Сюжет', color: 'main' },
+        side: { icon: 'fa-map-signs', name: 'Побочный', color: 'side' },
+        daily: { icon: 'fa-calendar-day', name: 'Ежедневный', color: 'daily' },
+        faction: { icon: 'fa-users', name: 'Фракция', color: 'faction' }
+    };
+    return categories[category] || { icon: 'fa-scroll', name: 'Квест', color: 'side' };
 }
 
 // Create quest card HTML
 function createQuestCard(quest, isCompleted) {
     const progress = quest.steps > 0 ? Math.round((quest.step / quest.steps) * 100) : 0;
+    const categoryInfo = getCategoryInfo(quest.category);
+    const isTracked = trackedQuestId === quest.questId;
+    
+    // Build rewards HTML
+    let rewardsHtml = '';
+    if (quest.reward) {
+        if (quest.reward.money) {
+            rewardsHtml += `<div class="quest-reward-item money"><i class="fas fa-dollar-sign"></i> ${quest.reward.money}</div>`;
+        }
+        if (quest.reward.exp) {
+            rewardsHtml += `<div class="quest-reward-item exp"><i class="fas fa-star"></i> ${quest.reward.exp} XP</div>`;
+        }
+        if (quest.reward.items && quest.reward.items.length > 0) {
+            rewardsHtml += `<div class="quest-reward-item items"><i class="fas fa-gift"></i> ${quest.reward.items.length} предмет(ов)</div>`;
+        }
+    }
     
     return `
-        <div class="quest-card ${isCompleted ? 'completed' : ''}">
+        <div class="quest-card ${isCompleted ? 'completed' : ''} ${isTracked ? 'tracked' : ''}" data-quest-id="${quest.questId}" data-category="${quest.category}">
             <div class="quest-card-header">
-                <div>
-                    <div class="quest-title">${quest.title}</div>
-                    <div class="quest-giver">От: ${quest.giver || 'Неизвестно'}</div>
+                <div class="quest-card-header-left">
+                    <div class="quest-title-row">
+                        <span class="quest-category ${categoryInfo.color}">
+                            <i class="fas ${categoryInfo.icon}"></i> ${categoryInfo.name}
+                        </span>
+                        <span class="quest-title">${quest.title}</span>
+                    </div>
+                    <div class="quest-giver">
+                        <i class="fas fa-user"></i> ${quest.giver || 'Неизвестно'}
+                    </div>
                 </div>
                 <div class="quest-status ${isCompleted ? 'completed' : 'active'}">
-                    ${isCompleted ? 'Выполнено' : 'В процессе'}
+                    ${isCompleted ? '<i class="fas fa-check"></i> Выполнено' : '<i class="fas fa-hourglass-half"></i> В процессе'}
                 </div>
             </div>
+            
+            ${!isCompleted && quest.currentObjective ? `
+                <div class="quest-objective">
+                    <i class="fas fa-crosshairs"></i>
+                    <span class="quest-objective-text">${quest.currentObjective}</span>
+                </div>
+            ` : ''}
+            
             <div class="quest-description">${quest.description}</div>
+            
             ${!isCompleted ? `
                 <div class="quest-progress">
+                    <div class="quest-progress-header">
+                        <span class="quest-progress-label">Прогресс</span>
+                        <span class="quest-progress-value">${quest.step}/${quest.steps}</span>
+                    </div>
                     <div class="quest-progress-bar">
                         <div class="quest-progress-fill" style="width: ${progress}%"></div>
                     </div>
-                    <div class="quest-progress-text">Шаг ${quest.step} / ${quest.steps}</div>
                 </div>
             ` : ''}
-            <div class="quest-reward">
-                <i class="fas fa-coins"></i>
-                <span>Награда: $${quest.reward?.money || 0}</span>
+            
+            <div class="quest-footer">
+                <div class="quest-rewards">
+                    ${rewardsHtml}
+                </div>
+                ${!isCompleted ? `
+                    <div class="quest-actions">
+                        <button class="quest-action-btn track ${isTracked ? 'active' : ''}" onclick="toggleTrackQuest('${quest.questId}')" title="Отслеживать">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                        <button class="quest-action-btn waypoint" onclick="setQuestWaypoint('${quest.questId}')" title="Проложить маршрут">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </button>
+                    </div>
+                ` : ''}
             </div>
         </div>
     `;
+}
+
+// Toggle quest tracking
+function toggleTrackQuest(questId) {
+    if (trackedQuestId === questId) {
+        trackedQuestId = null;
+        if (typeof mp !== 'undefined') {
+            mp.trigger('quest:untrack');
+        }
+        showNotification('info', 'Отслеживание отключено');
+    } else {
+        trackedQuestId = questId;
+        if (typeof mp !== 'undefined') {
+            mp.trigger('quest:track', questId);
+        }
+        showNotification('success', 'Квест отслеживается');
+    }
+    renderQuests();
+}
+
+// Set waypoint to quest objective
+function setQuestWaypoint(questId) {
+    if (typeof mp !== 'undefined') {
+        mp.trigger('quest:setWaypoint', questId);
+    }
+    showNotification('success', 'Маршрут проложен');
 }
 
 // Listen for quests update from client

@@ -6,6 +6,9 @@ require('./quests/manager.js');
 require('./quests/events.js');
 // Клиентская логика для системы авторизации и создания персонажа
 
+// ===== ПОДКЛЮЧЕНИЕ ТРЕКЕРА КВЕСТОВ =====
+require('./quests/tracker.js');
+
 let authBrowser = null;
 let characterBrowser = null;
 let characterSelectionBrowser = null;
@@ -2008,8 +2011,8 @@ mp.events.add('client:receiveSearchResults', (resultsJson) => {
 let phoneBrowser = null;
 let isPhoneOpen = false;
 
-// Открытие телефона по клавише M
-mp.keys.bind(0x4D, true, () => { // M
+// Открытие телефона по клавише
+mp.keys.bind(0x26, true, () => { // Arrow Up (Стрелка вверх)
     if (isChatActive || isInventoryOpen || isAdminPanelOpen) return;
     
     if (isPhoneOpen) {
@@ -2154,24 +2157,6 @@ mp.events.add('client:setWaypoint', (x, y) => {
     mp.game.graphics.notify('~g~Маршрут проложен!');
 });
 
-// Когда меню открывается - запросить данные квестов
-mp.events.add('playerMenu:open', () => {
-    // ... существующий код открытия меню ...
-    
-    // Запросить квесты с сервера
-    mp.events.callRemote('quests:getForMenu');
-});
-
-// Или если используется команда/кнопка для открытия:
-mp.keys.bind(0x4D, false, () => { // M key
-    // Открыть меню
-    playerMenuBrowser.execute('openMenu()');
-    mp.gui.cursor.show(true, true);
-    
-    // Запросить квесты
-    mp.events.callRemote('quests:getForMenu');
-});
-
 // ===== МЕНЮ ИГРОКА (F2) =====
 
 let playerMenuBrowser = null;
@@ -2214,6 +2199,18 @@ mp.events.add('client:openPlayerMenu', (playerDataJson, skillsDataJson) => {
         
     } catch (err) {
         console.error('[PlayerMenu] Error:', err);
+    }
+});
+
+mp.events.add('playerMenu:updateQuests', (questsJson) => {
+    try {
+        if (playerMenuBrowser) {
+            const escaped = questsJson.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            playerMenuBrowser.execute(`updateQuestsData(JSON.parse('${escaped}'))`);
+            console.log('[PlayerMenu] Quests data sent to CEF');
+        }
+    } catch (err) {
+        console.error('[PlayerMenu] Error sending quests to CEF:', err);
     }
 });
 

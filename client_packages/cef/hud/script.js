@@ -5,6 +5,12 @@ function updateHealth(value) {
     const bar = document.getElementById('healthBar');
     const text = document.getElementById('healthValue');
     
+    // GTA V HP: 100-200, где 100 = мёртв, 200 = полное
+    // Конвертируем в 0-100
+    if (value > 100) {
+        value = value - 100;
+    }
+    
     value = Math.max(0, Math.min(100, value));
     bar.style.width = value + '%';
     text.textContent = Math.round(value);

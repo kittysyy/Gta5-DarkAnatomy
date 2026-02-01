@@ -73,10 +73,18 @@ async function savePlayerSurvival(player) {
 function updateClientStats(player) {
     if (!player || !mp.players.exists(player)) return;
     
+    // player.health в RAGE:MP: 100 = мёртв, 200 = полное здоровье
+    // Конвертируем в 0-100
+    let health = player.health || 100;
+    if (health > 100) {
+        health = health - 100;  // 200 -> 100, 150 -> 50, etc.
+    }
+    health = Math.max(0, Math.min(100, health));
+    
     player.call('client:updateSurvivalStats', [
         Math.round(player.hunger || 100),
         Math.round(player.thirst || 100),
-        player.health || 100
+        health
     ]);
 }
 

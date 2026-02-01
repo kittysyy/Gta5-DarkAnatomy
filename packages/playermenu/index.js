@@ -79,6 +79,13 @@ mp.events.add('playermenu:open', async (player) => {
         
         player.call('client:openPlayerMenu', [JSON.stringify(playerData), JSON.stringify(skills)]);
         
+        // ===== ДОБАВИТЬ ЭТО: Отправляем данные квестов =====
+        if (global.questSystem && global.questSystem.getPlayerQuestsForMenu) {
+            const questsData = await global.questSystem.getPlayerQuestsForMenu(player);
+            player.call('playerMenu:updateQuests', [JSON.stringify(questsData)]);
+            console.log(`[PlayerMenu] Sent quests: ${questsData.active.length} active, ${questsData.completed.length} completed`);
+        }
+        
     } catch (err) {
         console.error('[PlayerMenu] Error:', err);
     }
