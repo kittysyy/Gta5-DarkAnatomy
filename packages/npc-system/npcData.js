@@ -110,6 +110,22 @@ const npcConfigs = [
             questId: 'street_intro',
             questName: 'Знакомство с районом'
         }
+    },
+    {
+        id: 5,
+        type: 'quest',
+        model: 'a_f_m_eastsa_02', // Friendly woman
+        position: {
+            x: 30.0,
+            y: -1339.0,
+            z: 29.49,
+            h: 270.0
+        },
+        name: 'Welcome Guide',
+        data: {
+            questId: 'intro_01',
+            questName: 'Welcome to Los Santos'
+        }
     }
 ];
 
