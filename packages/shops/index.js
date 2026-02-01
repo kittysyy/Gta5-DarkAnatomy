@@ -170,27 +170,20 @@ mp.events.add('clothingShop:tryOn', async (player, itemId) => {
         const drawable = clothingData.drawable || 0;
         const texture = clothingData.texture || 0;
         
-        player.call('client:clothingShop:applyTryOn', [componentId, drawable, texture, isProp]);
+        // Для топов (componentId === 11) автоматически применяем правильный торс
+        if (!isProp && componentId === 11) {
+            const torsoDrawable = getBestTorso(drawable);
+            player.call('client:clothingShop:applyTop', [drawable, texture, torsoDrawable]);
+            console.log(`[Shops] Примерка топа ${drawable} с торсом ${torsoDrawable}`);
+        } else if (isProp) {
+            player.call('client:clothingShop:applyProp', [componentId, drawable, texture]);
+        } else {
+            player.call('client:clothingShop:applyComponent', [componentId, drawable, texture]);
+        }
         
     } catch (err) {
         console.error('[Shops] Ошибка примерки:', err);
     }
-});
-
-// ===== ПОЛУЧЕНИЕ ЛУЧШЕГО ТОРСА =====
-mp.events.add('clothingShop:getBestTorso', (player, topDrawable) => {
-    if (!player || !mp.players.exists(player)) return;
-    
-    topDrawable = parseInt(topDrawable);
-    const { getBestTorso, TORSO_MAP } = require('./clothingData');
-    
-    const mapping = TORSO_MAP[topDrawable];
-    const torsoDrawable = mapping ? mapping.torso : 15;
-    const torsoTexture = 0;
-    
-    console.log('[Shops] Лучший торс для drawable', topDrawable, '=', torsoDrawable);
-    
-    player.call('client:clothingShop:applyTorso', [torsoDrawable, torsoTexture]);
 });
 
 // ===== ПОКУПКА =====
