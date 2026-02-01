@@ -43,8 +43,9 @@ mp.events.add('npc:interact', (player, npcId) => {
     const playerPos = player.position;
     const distance = playerPos.subtract(npcPos).length();
     
-    // Максимальное расстояние для взаимодействия - 2.5 метра (немного больше, чем на клиенте)
-    if (distance > 2.5) {
+    // Максимальное расстояние для взаимодействия - 3 метра
+    // Это на 1 метр больше клиентского порога (2 метра) для учета задержек и синхронизации позиций
+    if (distance > 3.0) {
         console.log(`[NPC System] Игрок ${player.name} слишком далеко от NPC ${npcId} (${distance.toFixed(2)}м)`);
         return;
     }
@@ -76,6 +77,9 @@ function handleShopNPC(player, npcConfig) {
     const shopData = npcConfig.data;
     const shopName = shopData.shopName || 'Магазин';
     const shopType = shopData.shopType || 'general';
+    
+    // Placeholder log for shop UI integration
+    console.log('[NPC System] Opening shop...');
     
     // Отправляем сообщение игроку
     player.outputChatBox(`!{#4caf50}[${npcConfig.name}] Добро пожаловать в ${shopName}!`);
