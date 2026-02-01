@@ -2629,8 +2629,6 @@ function saveCurrentClothes() {
             texture: player.getPropTextureIndex(i)
         };
     });
-    
-    console.log('[ClothingShop] Одежда сохранена');
 }
 
 // Восстановление одежды после закрытия магазина
@@ -2654,8 +2652,6 @@ function restoreClothes() {
             player.clearProp(i);
         }
     });
-    
-    console.log('[ClothingShop] Одежда восстановлена');
 }
 
 function createClothingShopCamera() {
@@ -2682,8 +2678,6 @@ function createClothingShopCamera() {
     
     // Поворачиваем персонажа ЛИЦОМ к камере
     player.setHeading(heading + 180);
-    
-    console.log('[ClothingShop] Камера создана, персонаж повёрнут');
 }
 
 // Обновление камеры
@@ -2712,7 +2706,6 @@ function destroyClothingShopCamera() {
         clothingShopCamera.destroy();
         clothingShopCamera = null;
         mp.game.cam.renderScriptCams(false, true, 500, true, false);
-        console.log('[ClothingShop] Камера уничтожена');
     }
 }
 
@@ -2769,7 +2762,6 @@ mp.events.add('client:openClothingShop', (shopDataJson, playerDataJson) => {
         }, 400);
         
         isClothingShopOpen = true;
-        console.log('[ClothingShop] Магазин открыт');
         
     } catch (err) {
         console.error('[ClothingShop] Ошибка открытия:', err);
@@ -2809,7 +2801,6 @@ mp.events.add('cef:clothingShop:close', () => {
         mp.game.ui.displayHud(true);
         
         isClothingShopOpen = false;
-        console.log('[ClothingShop] Магазин закрыт');
         
     } catch (err) {
         console.error('[ClothingShop] Ошибка закрытия:', err);
