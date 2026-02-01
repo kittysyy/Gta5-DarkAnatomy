@@ -1,6 +1,7 @@
 // ===== СИСТЕМА ТЕЛЕФОНА =====
 
 const { db } = require('../database');
+const config = require('./config');
 
 // ===== ИНИЦИАЛИЗАЦИЯ ТЕЛЕФОНА =====
 mp.events.add('phone:open', async (player) => {
@@ -60,7 +61,7 @@ mp.events.add('phone:open', async (player) => {
 
 // ===== ГЕНЕРАЦИЯ НОМЕРА ТЕЛЕФОНА =====
 function generatePhoneNumber() {
-    const prefix = '555';
+    const prefix = config.PHONE.NUMBER_PREFIX;
     const number = Math.floor(1000000 + Math.random() * 9000000);
     return `${prefix}-${number.toString().substring(0, 3)}-${number.toString().substring(3, 7)}`;
 }
@@ -106,8 +107,9 @@ mp.events.add('phone:addContact', async (player, name, phoneNumber) => {
         }
         
         phoneNumber = phoneNumber.trim();
-        if (!/^\d{3}-\d{3}-\d{4}$/.test(phoneNumber)) {
-            player.call('client:phoneNotify', ['error', 'Неверный формат номера! Пример: 555-123-4567']);
+        const phoneRegex = new RegExp(`^\\d{3}-\\d{3}-\\d{4}$`);
+        if (!phoneRegex.test(phoneNumber)) {
+            player.call('client:phoneNotify', ['error', `Неверный формат номера! Пример: ${config.PHONE.NUMBER_PREFIX}-123-4567`]);
             return;
         }
         
@@ -543,7 +545,7 @@ mp.events.add('playerQuit', async (player) => {
             );
         }
     } catch (err) {
-        // Игнорируем ошибки при выходе
+        console.error('[Phone] Ошибка при выходе игрока:', err);
     }
 });
 
