@@ -27,6 +27,16 @@ let cameraRotation = 0;
 let cameraMode = 'body'; // 'head', 'body', 'full'
 let autoRotateInterval = null;
 
+// ===== МАГАЗИН ОДЕЖДЫ =====
+let clothingShopBrowser = null;
+let isClothingShopOpen = false;
+let clothingShopCamera = null;
+let clothingShopRotation = 0;
+let clothingShopZoom = 3.5;
+let savedClothingData = {};
+let currentShopId = null;
+let currentShopType = null;
+
 // БЛОКИРУЕМ загрузку игры до авторизации
 mp.game.ui.displayRadar(false);
 mp.game.ui.displayHud(false);
@@ -2535,291 +2545,6 @@ mp.events.add('playerCommand', (command) => {
     }
 });
 
-// ===== СИСТЕМА МАГАЗИНОВ =====
-
-let shopBrowser = null;
-let isShopOpen = false;
-let shopCamera = null;
-let originalClothing = {};
-let isTryingOn = false;
-let shopRotation = 0;
-
-// Сохранить текущую одежду
-function saveCurrentClothing() {
-    const player = mp.players.local;
-    originalClothing = {};
-    
-    for (let i = 0; i < 12; i++) {
-        originalClothing[`comp_${i}`] = {
-            drawable: player.getDrawableVariation(i),
-            texture: player.getTextureVariation(i)
-        };
-    }
-    
-    for (let i = 0; i < 10; i++) {
-        originalClothing[`prop_${i}`] = {
-            drawable: player.getPropIndex(i),
-            texture: player.getPropTextureIndex(i)
-        };
-    }
-}
-
-// Восстановить одежду
-function restoreClothing() {
-    const player = mp.players.local;
-    
-    for (let i = 0; i < 12; i++) {
-        const comp = originalClothing[`comp_${i}`];
-        if (comp) {
-            player.setComponentVariation(i, comp.drawable, comp.texture, 0);
-        }
-    }
-    
-    for (let i = 0; i < 10; i++) {
-        const prop = originalClothing[`prop_${i}`];
-        if (prop) {
-            if (prop.drawable === -1) {
-                player.clearProp(i);
-            } else {
-                player.setProp(i, prop.drawable, prop.texture, true);
-            }
-        }
-    }
-    
-    isTryingOn = false;
-}
-
-// Создать камеру для магазина - ПОЛНЫЙ ВИД
-function createShopCamera() {
-    const player = mp.players.local;
-    const pos = player.position;
-    const heading = player.getHeading();
-    
-    shopRotation = heading;
-    
-    const radians = (heading * Math.PI) / 180;
-    const distance = 3.5;  // Дальше для полного вида
-    const height = 0.5;    // Выше для обзора всего тела
-    
-    const camPos = new mp.Vector3(
-        pos.x + Math.sin(radians) * distance,
-        pos.y + Math.cos(radians) * distance,
-        pos.z + height
-    );
-    
-    shopCamera = mp.cameras.new('default', camPos, new mp.Vector3(0, 0, 0), 50);
-    
-    // Смотрим на центр тела (не на голову)
-    shopCamera.pointAtCoord(pos.x, pos.y, pos.z + 0.5);
-    
-    shopCamera.setActive(true);
-    mp.game.cam.renderScriptCams(true, true, 500, true, false);
-}
-
-// Обновить позицию камеры
-function updateShopCamera() {
-    if (!shopCamera || !isShopOpen) return;
-    
-    const player = mp.players.local;
-    const pos = player.position;
-    
-    const radians = (shopRotation * Math.PI) / 180;
-    const distance = 3.5;
-    const height = 0.5;
-    
-    const camPos = new mp.Vector3(
-        pos.x + Math.sin(radians) * distance,
-        pos.y + Math.cos(radians) * distance,
-        pos.z + height
-    );
-    
-    shopCamera.setCoord(camPos.x, camPos.y, camPos.z);
-    shopCamera.pointAtCoord(pos.x, pos.y, pos.z + 0.5);
-}
-
-// Уничтожить камеру магазина
-function destroyShopCamera() {
-    if (shopCamera) {
-        shopCamera.setActive(false);
-        shopCamera.destroy();
-        shopCamera = null;
-        mp.game.cam.renderScriptCams(false, true, 500, true, false);
-        console.log('[Shop] Камера уничтожена');
-    }
-}
-
-// Открытие магазина
-mp.events.add('client:openShop', (shopDataJson, playerDataJson) => {
-    if (isShopOpen) return;
-    
-    try {
-        const player = mp.players.local;
-        
-        // Сохраняем одежду
-        saveCurrentClothing();
-        
-        // Замораживаем игрока
-        player.freezePosition(true);
-        
-        // Создаём камеру
-        createShopCamera();
-        
-        // Создаём браузер
-        shopBrowser = mp.browsers.new('package://cef/shop/index.html');
-        
-        setTimeout(() => {
-            mp.gui.cursor.visible = true;
-            if (typeof mp.gui.cursor.show === 'function') {
-                mp.gui.cursor.show(true, true);
-            }
-            
-            mp.game.ui.displayRadar(false);
-            mp.game.ui.displayHud(false);
-            
-            if (shopBrowser) {
-                shopBrowser.execute(`loadShop('${shopDataJson.replace(/'/g, "\\'")}', '${playerDataJson.replace(/'/g, "\\'")}')`);
-            }
-        }, 300);
-        
-        isShopOpen = true;
-        
-    } catch (err) {
-        console.error('[Shop] Ошибка:', err);
-    }
-});
-
-// Закрытие магазина
-function closeShop() {
-    if (!isShopOpen) return;
-    
-    // Восстанавливаем одежду если примеряли
-    if (isTryingOn) {
-        restoreClothing();
-    }
-    
-    // Уничтожаем камеру
-    destroyShopCamera();
-    
-    if (shopBrowser) {
-        shopBrowser.destroy();
-        shopBrowser = null;
-    }
-    
-    mp.gui.cursor.visible = false;
-    if (typeof mp.gui.cursor.show === 'function') {
-        mp.gui.cursor.show(false, false);
-    }
-    
-    mp.game.ui.displayRadar(true);
-    mp.game.ui.displayHud(true);
-    mp.players.local.freezePosition(false);
-    
-    isShopOpen = false;
-    isTryingOn = false;
-}
-
-mp.events.add('cef:closeShop', () => closeShop());
-
-// Примерка одежды
-mp.events.add('cef:tryClothing', (itemId) => {
-    console.log('[Shop] Примерка itemId:', itemId);
-    
-    if (!isTryingOn) {
-        saveCurrentClothing();
-        isTryingOn = true;
-    }
-    
-    mp.events.callRemote('shop:tryClothing', itemId);
-});
-
-// Сброс примерки
-mp.events.add('cef:resetClothing', () => {
-    if (isTryingOn) {
-        restoreClothing();
-    }
-});
-
-// Вращение камеры влево
-mp.events.add('cef:rotateCameraLeft', () => {
-    if (!isShopOpen) return;
-    shopRotation -= 15;
-    updateShopCamera();
-});
-
-// Вращение камеры вправо
-mp.events.add('cef:rotateCameraRight', () => {
-    if (!isShopOpen) return;
-    shopRotation += 15;
-    updateShopCamera();
-});
-
-// Сброс вращения
-mp.events.add('cef:resetRotation', () => {
-    if (!isShopOpen) return;
-    shopRotation = mp.players.local.getHeading();
-    updateShopCamera();
-});
-
-// Покупка
-mp.events.add('cef:buyItem', (productId, quantity, paymentType) => {
-    mp.events.callRemote('shop:buy', productId, quantity, paymentType);
-});
-
-// Уведомления магазина
-mp.events.add('client:shopNotify', (type, message) => {
-    if (shopBrowser) {
-        shopBrowser.execute(`showNotification('${type}', '${message}')`);
-    }
-    
-    const prefix = type === 'success' ? '~g~' : '~r~';
-    mp.game.graphics.notify(`${prefix}${message}`);
-});
-
-// Обновление баланса
-mp.events.add('client:updateShopBalance', (balanceJson) => {
-    if (shopBrowser) {
-        shopBrowser.execute(`updateBalance('${balanceJson}')`);
-    }
-});
-
-// Отключаем автоматическую смену камеры GTA при неактивности
-mp.events.add('render', () => {
-    // Если магазин открыт - отключаем idle камеру
-    if (isShopOpen) {
-        // Отключаем переход в режим от первого лица при бездействии
-        mp.game.invoke('0x9E4CFFF989258472'); // INVALIDATE_IDLE_CAM
-        mp.game.invoke('0xF4F2C0D4EE209E20'); // DISABLE_IDLE_CAM_THIS_FRAME
-        
-        // Отключаем управление камерой игрока
-        mp.game.controls.disableControlAction(0, 0, true);   // Next Camera
-        mp.game.controls.disableControlAction(0, 1, true);   // Look Left/Right
-        mp.game.controls.disableControlAction(0, 2, true);   // Look Up/Down
-        mp.game.controls.disableControlAction(0, 25, true);  // Aim
-        mp.game.controls.disableControlAction(0, 26, true);  // Look Behind
-    }
-});
-
-// Открытие магазина по E
-mp.keys.bind(0x45, false, () => {
-    if (isChatActive || isInventoryOpen || isAdminPanelOpen) return;
-    if (isShopOpen || isPhoneOpen || isPlayerMenuOpen) return;
-    if (isAuthShown || isCharacterCreationShown || isCharacterSelectionShown) return;
-    if (!isSpawned) return;
-    
-    // Подбор предметов
-    if (typeof nearbyGroundItems !== 'undefined' && nearbyGroundItems.length > 0) {
-        const nearest = nearbyGroundItems[0];
-        if (nearest.distance <= 3) {
-            mp.events.callRemote('inventory:pickupItem', nearest.id);
-            return;
-        }
-    }
-    
-    // Открытие магазина
-    mp.events.callRemote('shop:open');
-});
-
-console.log('[Shop Client] ✅ Система магазинов с камерой загружена');
 // Тест одежды - найди правильные ID
 mp.events.add('playerCommand', (command) => {
     const args = command.split(' ');
@@ -2877,6 +2602,326 @@ mp.events.add('playerCommand', (command) => {
         mp.gui.chat.push(`!{#00ff00}Comp 6 (Feet): ${player.getDrawableVariation(6)}, ${player.getTextureVariation(6)}`);
         mp.gui.chat.push(`!{#00ff00}Comp 8 (Undershirt): ${player.getDrawableVariation(8)}, ${player.getTextureVariation(8)}`);
         mp.gui.chat.push(`!{#00ff00}Comp 11 (Top): ${player.getDrawableVariation(11)}, ${player.getTextureVariation(11)}`);
+    }
+});
+
+// =============================================
+// ===== СИСТЕМА МАГАЗИНА ОДЕЖДЫ =====
+// =============================================
+
+// Сохранение текущей одежды перед примеркой
+function saveCurrentClothes() {
+    const player = mp.players.local;
+    savedClothingData = {};
+    
+    // Сохраняем компоненты (0-11)
+    for (let i = 0; i < 12; i++) {
+        savedClothingData[`comp_${i}`] = {
+            drawable: player.getDrawableVariation(i),
+            texture: player.getTextureVariation(i)
+        };
+    }
+    
+    // Сохраняем пропсы (0-2, 6-7)
+    [0, 1, 2, 6, 7].forEach(i => {
+        savedClothingData[`prop_${i}`] = {
+            drawable: player.getPropIndex(i),
+            texture: player.getPropTextureIndex(i)
+        };
+    });
+    
+    console.log('[ClothingShop] Одежда сохранена');
+}
+
+// Восстановление одежды после закрытия магазина
+function restoreClothes() {
+    const player = mp.players.local;
+    
+    // Восстанавливаем компоненты
+    for (let i = 0; i < 12; i++) {
+        const comp = savedClothingData[`comp_${i}`];
+        if (comp) {
+            player.setComponentVariation(i, comp.drawable, comp.texture, 0);
+        }
+    }
+    
+    // Восстанавливаем пропсы
+    [0, 1, 2, 6, 7].forEach(i => {
+        const prop = savedClothingData[`prop_${i}`];
+        if (prop && prop.drawable >= 0) {
+            player.setPropIndex(i, prop.drawable, prop.texture, true);
+        } else {
+            player.clearProp(i);
+        }
+    });
+    
+    console.log('[ClothingShop] Одежда восстановлена');
+}
+
+function createClothingShopCamera() {
+    const player = mp.players.local;
+    const pos = player.position;
+    const heading = player.getHeading();
+    
+    // Сохраняем оригинальный поворот
+    clothingShopRotation = heading + 180;
+    clothingShopZoom = 2.5;
+    
+    const radians = (clothingShopRotation * Math.PI) / 180;
+    
+    const camPos = new mp.Vector3(
+        pos.x + Math.sin(radians) * clothingShopZoom,
+        pos.y + Math.cos(radians) * clothingShopZoom,
+        pos.z + 0.5
+    );
+    
+    clothingShopCamera = mp.cameras.new('default', camPos, new mp.Vector3(0, 0, 0), 45);
+    clothingShopCamera.pointAtCoord(pos.x, pos.y, pos.z + 0.4);
+    clothingShopCamera.setActive(true);
+    mp.game.cam.renderScriptCams(true, true, 500, true, false);
+    
+    // Поворачиваем персонажа ЛИЦОМ к камере
+    player.setHeading(heading + 180);
+    
+    console.log('[ClothingShop] Камера создана, персонаж повёрнут');
+}
+
+// Обновление камеры
+function updateClothingShopCamera() {
+    if (!clothingShopCamera || !isClothingShopOpen) return;
+    
+    const player = mp.players.local;
+    const pos = player.position;
+    
+    const radians = (clothingShopRotation * Math.PI) / 180;
+    
+    const camPos = new mp.Vector3(
+        pos.x + Math.sin(radians) * clothingShopZoom,
+        pos.y + Math.cos(radians) * clothingShopZoom,
+        pos.z + 0.3
+    );
+    
+    clothingShopCamera.setCoord(camPos.x, camPos.y, camPos.z);
+    clothingShopCamera.pointAtCoord(pos.x, pos.y, pos.z + 0.3);
+}
+
+// Уничтожение камеры
+function destroyClothingShopCamera() {
+    if (clothingShopCamera) {
+        clothingShopCamera.setActive(false);
+        clothingShopCamera.destroy();
+        clothingShopCamera = null;
+        mp.game.cam.renderScriptCams(false, true, 500, true, false);
+        console.log('[ClothingShop] Камера уничтожена');
+    }
+}
+
+// ===== ОБРАБОТЧИКИ СОБЫТИЙ =====
+
+// Показать подсказку при входе в зону магазина
+mp.events.add('client:showShopHint', (shopName, shopType) => {
+    currentShopId = true;
+    currentShopType = shopType;
+    
+    // Показываем подсказку
+    mp.game.graphics.notify(`~p~${shopName}~w~\nНажмите ~g~E~w~ чтобы открыть`);
+});
+
+// Скрыть подсказку
+mp.events.add('client:hideShopHint', () => {
+    currentShopId = null;
+    currentShopType = null;
+});
+
+// Открытие магазина одежды
+mp.events.add('client:openClothingShop', (shopDataJson, playerDataJson) => {
+    if (isClothingShopOpen) return;
+    
+    try {
+        const player = mp.players.local;
+        
+        // Сохраняем одежду
+        saveCurrentClothes();
+        
+        // Замораживаем игрока
+        player.freezePosition(true);
+        
+        // Создаём камеру
+        createClothingShopCamera();
+        
+        // Создаём браузер
+        clothingShopBrowser = mp.browsers.new('package://cef/clothing_shop/index.html');
+        
+        setTimeout(() => {
+            mp.gui.cursor.visible = true;
+            if (typeof mp.gui.cursor.show === 'function') {
+                mp.gui.cursor.show(true, true);
+            }
+            
+            mp.game.ui.displayRadar(false);
+            mp.game.ui.displayHud(false);
+            
+            if (clothingShopBrowser) {
+                const safeShopData = shopDataJson.replace(/'/g, "\\'");
+                const safePlayerData = playerDataJson.replace(/'/g, "\\'");
+                clothingShopBrowser.execute(`openClothingShop('${safeShopData}', '${safePlayerData}')`);
+            }
+        }, 400);
+        
+        isClothingShopOpen = true;
+        console.log('[ClothingShop] Магазин открыт');
+        
+    } catch (err) {
+        console.error('[ClothingShop] Ошибка открытия:', err);
+    }
+});
+
+// Закрытие магазина
+mp.events.add('cef:clothingShop:close', () => {
+    if (!isClothingShopOpen) return;
+    
+    try {
+        const player = mp.players.local;
+        
+        // Восстанавливаем одежду
+        restoreClothes();
+        
+        // Размораживаем игрока
+        player.freezePosition(false);
+        
+        // Уничтожаем камеру
+        destroyClothingShopCamera();
+        
+        // Закрываем браузер
+        if (clothingShopBrowser) {
+            clothingShopBrowser.destroy();
+            clothingShopBrowser = null;
+        }
+        
+        // Скрываем курсор
+        mp.gui.cursor.visible = false;
+        if (typeof mp.gui.cursor.show === 'function') {
+            mp.gui.cursor.show(false, false);
+        }
+        
+        // Показываем HUD
+        mp.game.ui.displayRadar(true);
+        mp.game.ui.displayHud(true);
+        
+        isClothingShopOpen = false;
+        console.log('[ClothingShop] Магазин закрыт');
+        
+    } catch (err) {
+        console.error('[ClothingShop] Ошибка закрытия:', err);
+    }
+});
+
+// Примерка одежды
+mp.events.add('cef:clothingShop:tryOn', (itemId) => {
+    console.log('[ClothingShop] Отправка запроса примерки:', itemId);
+    mp.events.callRemote('clothingShop:tryOn', itemId);
+});
+
+// Применение примерки (от сервера)
+mp.events.add('client:clothingShop:applyTryOn', (componentId, drawable, texture, isProp) => {
+    const player = mp.players.local;
+    
+    componentId = parseInt(componentId);
+    drawable = parseInt(drawable);
+    texture = parseInt(texture);
+    isProp = isProp === true || isProp === 'true';
+    
+    console.log('[ClothingShop] Применяем:', {componentId, drawable, texture, isProp});
+    
+    try {
+        if (isProp) {
+            // Это проп (очки, шляпа, часы)
+            if (drawable >= 0) {
+                player.setPropIndex(componentId, drawable, texture, true);
+            } else {
+                player.clearProp(componentId);
+            }
+        } else {
+            // Это компонент (одежда)
+            player.setComponentVariation(componentId, drawable, texture, 0);
+            
+            // Если это топ (component 11) - нужно применить совместимый торс
+            if (componentId === 11) {
+                // Устанавливаем базовый торс и undershirt
+                player.setComponentVariation(3, 15, 0, 0);  // Торс
+                player.setComponentVariation(8, 15, 0, 0);  // Undershirt = none
+                
+                // Запрашиваем лучший торс с сервера
+                mp.events.callRemote('clothingShop:getBestTorso', drawable);
+            }
+        }
+        
+        console.log('[ClothingShop] Применено успешно');
+        
+    } catch (err) {
+        console.error('[ClothingShop] Ошибка применения:', err);
+    }
+});
+
+// Применение лучшего торса
+mp.events.add('client:clothingShop:applyTorso', (torsoDrawable, torsoTexture) => {
+    const player = mp.players.local;
+    torsoDrawable = parseInt(torsoDrawable) || 15;
+    torsoTexture = parseInt(torsoTexture) || 0;
+    
+    player.setComponentVariation(3, torsoDrawable, torsoTexture, 0);
+    console.log('[ClothingShop] Торс применён:', torsoDrawable, torsoTexture);
+});
+
+// Покупка
+mp.events.add('cef:clothingShop:buy', (productId, quantity, paymentType) => {
+    mp.events.callRemote('clothingShop:buy', productId, quantity, paymentType);
+});
+
+// Уведомление от сервера
+mp.events.add('client:clothingShop:notify', (type, message) => {
+    if (clothingShopBrowser) {
+        clothingShopBrowser.execute(`shopNotify('${type}', '${message.replace(/'/g, "\\'")}')`);
+    }
+});
+
+// Обновление баланса
+mp.events.add('client:clothingShop:updateBalance', (playerDataJson) => {
+    if (clothingShopBrowser) {
+        clothingShopBrowser.execute(`updateBalance('${playerDataJson.replace(/'/g, "\\'")}')`);
+    }
+});
+
+// Вращение камеры
+mp.events.add('cef:clothingShop:rotate', (angle) => {
+    clothingShopRotation += angle;
+    updateClothingShopCamera();
+});
+
+// Зум камеры
+mp.events.add('cef:clothingShop:zoom', (delta) => {
+    clothingShopZoom = Math.max(1.5, Math.min(6, clothingShopZoom - delta));
+    updateClothingShopCamera();
+});
+
+// Сброс камеры
+mp.events.add('cef:clothingShop:resetCamera', () => {
+    const player = mp.players.local;
+    clothingShopRotation = player.getHeading();
+    clothingShopZoom = 3.5;
+    updateClothingShopCamera();
+});
+
+// ===== ОТКРЫТИЕ МАГАЗИНА ПО КНОПКЕ E =====
+mp.keys.bind(0x45, false, () => { // E
+    if (isClothingShopOpen) return;
+    if (!currentShopId) return;
+    
+    if (currentShopType === 'clothing') {
+        mp.events.callRemote('clothingShop:open');
+    } else {
+        // Для других типов магазинов
+        mp.events.callRemote('shop:open');
     }
 });
 

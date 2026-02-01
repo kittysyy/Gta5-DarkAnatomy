@@ -182,13 +182,43 @@ const MALE_BEST_TORSO = {
     176: 14 // Bare chest 3
 };
 
-// Экспорт функции получения torso
-function getBestTorso(topDrawable, gender = 0) {
-    if (gender === 0) { // Male
-        return MALE_BEST_TORSO[topDrawable] !== undefined ? MALE_BEST_TORSO[topDrawable] : 0;
+// Таблица соответс��вия топов и торсов для mp_m_freemode_01
+const TORSO_MAP = {
+    // Футболки (drawable 0)
+    0: { torso: 15, undershirt: 15 },
+    // Поло (drawable 2)
+    2: { torso: 12, undershirt: 15 },
+    // Пиджак (drawable 4)
+    4: { torso: 4, undershirt: 15 },
+    // Майка (drawable 15)
+    15: { torso: 15, undershirt: 15 },
+    // Жилетка (drawable 23)
+    23: { torso: 11, undershirt: 15 },
+    // Рубашка (drawable 31)
+    31: { torso: 11, undershirt: 15 },
+    // Толстовка (drawable 48)
+    48: { torso: 14, undershirt: 15 },
+    // Кожаная куртка (drawable 55)
+    55: { torso: 1, undershirt: 15 },
+    // Джинсовая куртка (drawable 63)
+    63: { torso: 5, undershirt: 15 },
+    // Фланелевая рубашка (drawable 64)
+    64: { torso: 11, undershirt: 15 },
+    // Спортивная куртка (drawable 67)
+    67: { torso: 5, undershirt: 15 },
+    // Бомбер (drawable 117)
+    117: { torso: 5, undershirt: 15 },
+};
+
+function getBestTorso(topDrawable) {
+    const mapping = TORSO_MAP[topDrawable];
+    if (mapping) {
+        return mapping.torso;
     }
-    // Для женской модели можно добавить отдельный объект
-    return 0;
+    // По умолчанию - базовый торс
+    return 15;
 }
+
+module.exports = { getBestTorso, TORSO_MAP };
 
 module.exports = { MALE_BEST_TORSO, getBestTorso };

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Магазин одежды</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="clothingShop" class="shop-container">
+        
+        <!-- LEFT PANEL -->
+        <div class="left-panel">
+            <!-- Header -->
+            <div class="shop-header">
+                <button class="back-btn" id="backBtn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="shop-info">
+                    <div class="shop-name" id="shopName">BINCO</div>
+                    <div class="shop-location" id="shopLocation">VESPUCCI</div>
+                </div>
+                <div class="cart-info">
+                    <div class="cart-item"><i class="fas fa-shopping-cart"></i> <span id="cartCount">0</span></div>
+                    <div class="cart-item"><i class="fas fa-heart"></i> <span>0</span></div>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Поиск по названию">
+                <button class="filter-btn">
+                    <i class="fas fa-sliders-h"></i>
+                </button>
+            </div>
+
+            <!-- Categories -->
+            <div class="categories-bar" id="categoriesBar">
+                <button class="cat-btn" data-category="tops" title="Верх">
+                    <i class="fas fa-shirt"></i>
+                </button>
+                <button class="cat-btn" data-category="bottoms" title="Низ">
+                    <i class="fas fa-socks"></i>
+                </button>
+                <button class="cat-btn" data-category="shoes" title="Обувь">
+                    <i class="fas fa-shoe-prints"></i>
+                </button>
+                <button class="cat-btn" data-category="headwear" title="Головные уборы">
+                    <i class="fas fa-hat-cowboy"></i>
+                </button>
+                <button class="cat-btn" data-category="glasses" title="Очки">
+                    <i class="fas fa-glasses"></i>
+                </button>
+                <button class="cat-btn" data-category="masks" title="Маски">
+                    <i class="fas fa-mask"></i>
+                </button>
+                <button class="cat-btn" data-category="accessories" title="Аксессуары">
+                    <i class="fas fa-gem"></i>
+                </button>
+                <button class="cat-btn" data-category="bags" title="Рюкзаки">
+                    <i class="fas fa-bag-shopping"></i>
+                </button>
+                <button class="cat-nav-btn" id="catNext">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- Products List -->
+            <div class="products-list" id="productsList">
+                <div class="products-placeholder">
+                    <i class="fas fa-hand-pointer"></i>
+                    <span>Выберите категорию</span>
+                </div>
+            </div>
+
+            <!-- Scroll to top -->
+            <button class="scroll-top-btn" id="scrollTopBtn">
+                <i class="fas fa-arrow-up"></i> Наверх
+            </button>
+        </div>
+
+        <!-- RIGHT PANEL - Character Preview -->
+        <div class="right-panel">
+            <!-- Balance info -->
+            <div class="balance-panel">
+                <div class="balance-item cash">
+                    <span id="cashBalance">$0</span>
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="balance-item bank">
+                    <span id="bankBalance">$0</span>
+                    <i class="fas fa-credit-card"></i>
+                </div>
+            </div>
+
+            <!-- Character preview area - transparent -->
+            <div class="character-preview">
+                <!-- Персонаж виден через прозрачный фон -->
+            </div>
+
+            <!-- Variants panel -->
+            <div class="variants-panel" id="variantsPanel">
+                <div class="variants-label">Доступные расцветки</div>
+                <div class="variants-counter" id="variantsCounter">1 из 1</div>
+                <div class="variants-list" id="variantsList"></div>
+            </div>
+
+            <!-- Bottom actions -->
+            <div class="bottom-actions">
+                <button class="buy-btn" id="btnBuy" disabled>
+                    <i class="fas fa-shopping-cart"></i> Добавить в корзину
+                </button>
+                <button class="favorite-btn" id="btnFavorite">
+                    <i class="far fa-heart"></i>
+                </button>
+            </div>
+
+            <!-- Controls hints -->
+            <div class="controls-hints">
+                <div class="hint-item">
+                    <span>Переключение категорий</span>
+                    <div class="hint-keys">
+                        <span class="key">Q</span>
+                        <span class="key">E</span>
+                    </div>
+                </div>
+                <div class="hint-item">
+                    <span>Снять всю одежду</span>
+                    <span class="key">L</span>
+                </div>
+                <div class="hint-item">
+                    <span>Вращение камеры</span>
+                    <span class="key">R</span>
+                </div>
+                <div class="hint-item">
+                    <span>Приближение</span>
+                    <span class="key">↑↓</span>
+                </div>
+                <div class="hint-item">
+                    <span>Покинуть магазин</span>
+                    <span class="key">ESC</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notifications"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
