@@ -210,9 +210,10 @@ function findNearestNPC(position, maxDistance) {
 
 // ===== ОЧИСТКА ПРИ ВЫХОДЕ =====
 /**
- * Очищаем NPC при отключении игрока
+ * Очищаем NPC при отключении (RageMP автоматически очищает клиентские сущности)
+ * Можно использовать событие 'disconnect' если нужна дополнительная очистка
  */
-mp.events.add('playerQuit', () => {
+mp.events.add('disconnect', () => {
     cleanupNPCs();
 });
 
