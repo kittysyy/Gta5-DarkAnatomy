@@ -1,7 +1,7 @@
 // ===== СИСТЕМА ТЕЛЕФОНА =====
 
 const { db } = require('../database');
-const config = require('./config');
+const config = require('../config');
 
 // ===== ИНИЦИАЛИЗАЦИЯ ТЕЛЕФОНА =====
 mp.events.add('phone:open', async (player) => {
