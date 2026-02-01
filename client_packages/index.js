@@ -2822,55 +2822,30 @@ mp.events.add('cef:clothingShop:tryOn', (itemId) => {
     mp.events.callRemote('clothingShop:tryOn', itemId);
 });
 
-// Применение примерки (от сервера)
-mp.events.add('client:clothingShop:applyTryOn', (componentId, drawable, texture, isProp) => {
+// Применить топ с торсом (новый обработчик)
+mp.events.add('client:clothingShop:applyTop', (topDrawable, topTexture, torsoDrawable) => {
     const player = mp.players.local;
-    
-    componentId = parseInt(componentId);
-    drawable = parseInt(drawable);
-    texture = parseInt(texture);
-    isProp = isProp === true || isProp === 'true';
-    
-    console.log('[ClothingShop] Применяем:', {componentId, drawable, texture, isProp});
-    
-    try {
-        if (isProp) {
-            // Это проп (очки, шляпа, часы)
-            if (drawable >= 0) {
-                player.setPropIndex(componentId, drawable, texture, true);
-            } else {
-                player.clearProp(componentId);
-            }
-        } else {
-            // Это компонент (одежда)
-            player.setComponentVariation(componentId, drawable, texture, 0);
-            
-            // Если это топ (component 11) - нужно применить совместимый торс
-            if (componentId === 11) {
-                // Устанавливаем базовый торс и undershirt
-                player.setComponentVariation(3, 15, 0, 0);  // Торс
-                player.setComponentVariation(8, 15, 0, 0);  // Undershirt = none
-                
-                // Запрашиваем лучший торс с сервера
-                mp.events.callRemote('clothingShop:getBestTorso', drawable);
-            }
-        }
-        
-        console.log('[ClothingShop] Применено успешно');
-        
-    } catch (err) {
-        console.error('[ClothingShop] Ошибка применения:', err);
-    }
+    player.setComponentVariation(3, parseInt(torsoDrawable), 0, 0);  // Торс
+    player.setComponentVariation(8, 15, 0, 0);  // Undershirt = none
+    player.setComponentVariation(11, parseInt(topDrawable), parseInt(topTexture), 0);  // Top
+    console.log('[ClothingShop] Топ применён:', topDrawable, topTexture, 'с торсом:', torsoDrawable);
 });
 
-// Применение лучшего торса
-mp.events.add('client:clothingShop:applyTorso', (torsoDrawable, torsoTexture) => {
+// Применить обычный компонент (новый обработчик)
+mp.events.add('client:clothingShop:applyComponent', (componentId, drawable, texture) => {
+    mp.players.local.setComponentVariation(parseInt(componentId), parseInt(drawable), parseInt(texture), 0);
+    console.log('[ClothingShop] Компонент применён:', componentId, drawable, texture);
+});
+
+// Применить проп (новый обработчик)
+mp.events.add('client:clothingShop:applyProp', (propId, drawable, texture) => {
     const player = mp.players.local;
-    torsoDrawable = parseInt(torsoDrawable) || 15;
-    torsoTexture = parseInt(torsoTexture) || 0;
-    
-    player.setComponentVariation(3, torsoDrawable, torsoTexture, 0);
-    console.log('[ClothingShop] Торс применён:', torsoDrawable, torsoTexture);
+    if (parseInt(drawable) >= 0) {
+        player.setPropIndex(parseInt(propId), parseInt(drawable), parseInt(texture), true);
+    } else {
+        player.clearProp(parseInt(propId));
+    }
+    console.log('[ClothingShop] Проп применён:', propId, drawable, texture);
 });
 
 // Покупка
