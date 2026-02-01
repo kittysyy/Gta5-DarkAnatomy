@@ -18,6 +18,22 @@ const npcConfigs = [
         type: 'shop',
         model: 'mp_m_shopkeep_01', // Модель продавца магазина
         position: {
+            x: -707.5, 
+            y: -914.2, 
+            z: 19.2, 
+            h: 90.0
+        },
+        name: 'Store Clerk',
+        data: {
+            shopType: 'grocery',
+            shopName: 'Little Seoul 24/7'
+        }
+    },
+    {
+        id: 2,
+        type: 'shop',
+        model: 'mp_m_shopkeep_01', // Модель продавца магазина
+        position: {
             x: 25.7, 
             y: -1347.3, 
             z: 29.49, 
@@ -30,7 +46,7 @@ const npcConfigs = [
         }
     },
     {
-        id: 2,
+        id: 3,
         type: 'shop',
         model: 's_m_m_linecook', // Модель повара
         position: {
@@ -48,7 +64,23 @@ const npcConfigs = [
     
     // ===== КВЕСТ-ГИВЕРЫ =====
     {
-        id: 3,
+        id: 4,
+        type: 'quest',
+        model: 'a_m_m_business_01', // Бизнесмен
+        position: {
+            x: -1037.7,
+            y: -2738.5,
+            z: 20.0,
+            h: 180.0
+        },
+        name: 'Quest Giver',
+        data: {
+            questId: 'starter_quest',
+            questName: 'Starter Quest'
+        }
+    },
+    {
+        id: 5,
         type: 'quest',
         model: 'a_m_m_business_01', // Бизнесмен
         position: {
@@ -64,7 +96,7 @@ const npcConfigs = [
         }
     },
     {
-        id: 4,
+        id: 6,
         type: 'quest',
         model: 'a_m_y_hipster_01', // Хипстер
         position: {

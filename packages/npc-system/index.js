@@ -43,8 +43,8 @@ mp.events.add('npc:interact', (player, npcId) => {
     const playerPos = player.position;
     const distance = playerPos.subtract(npcPos).length();
     
-    // Максимальное расстояние для взаимодействия - 2.5 метра (немного больше, чем на клиенте)
-    if (distance > 2.5) {
+    // Максимальное расстояние для взаимодействия - 3 метра (немного больше, чем на клиенте)
+    if (distance > 3.0) {
         console.log(`[NPC System] Игрок ${player.name} слишком далеко от NPC ${npcId} (${distance.toFixed(2)}м)`);
         return;
     }
@@ -77,6 +77,9 @@ function handleShopNPC(player, npcConfig) {
     const shopName = shopData.shopName || 'Магазин';
     const shopType = shopData.shopType || 'general';
     
+    // Placeholder log for shop UI integration
+    console.log('[NPC System] Opening shop...');
+    
     // Отправляем сообщение игроку
     player.outputChatBox(`!{#4caf50}[${npcConfig.name}] Добро пожаловать в ${shopName}!`);
     player.outputChatBox(`!{#2196f3}[Система] Открыт магазин типа: ${shopType}`);
@@ -94,6 +97,9 @@ function handleQuestNPC(player, npcConfig) {
     const questData = npcConfig.data;
     const questId = questData.questId || 'unknown';
     const questName = questData.questName || 'Неизвестный квест';
+    
+    // Placeholder log for quest system integration
+    console.log('[NPC System] Starting quest...');
     
     // Отправляем сообщение игроку
     player.outputChatBox(`!{#9c27b0}[${npcConfig.name}] У меня есть задание для тебя...`);
