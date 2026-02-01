@@ -87,6 +87,30 @@ mp.events.add('phone:addContact', async (player, name, phoneNumber) => {
     if (!player.characterId) return;
     
     try {
+        // Валидация имени
+        if (!name || typeof name !== 'string') {
+            player.call('client:phoneNotify', ['error', 'Введите имя контакта!']);
+            return;
+        }
+        
+        name = name.trim();
+        if (name.length < 1 || name.length > 50) {
+            player.call('client:phoneNotify', ['error', 'Имя должно быть от 1 до 50 символов!']);
+            return;
+        }
+        
+        // Валидация номера
+        if (!phoneNumber || typeof phoneNumber !== 'string') {
+            player.call('client:phoneNotify', ['error', 'Введите номер телефона!']);
+            return;
+        }
+        
+        phoneNumber = phoneNumber.trim();
+        if (!/^\d{3}-\d{3}-\d{4}$/.test(phoneNumber)) {
+            player.call('client:phoneNotify', ['error', 'Неверный формат номера! Пример: 555-123-4567']);
+            return;
+        }
+        
         // Проверяем существует ли уже контакт
         const [existing] = await db.query(
             'SELECT id FROM phone_contacts WHERE character_id = ? AND phone_number = ?',
@@ -108,6 +132,7 @@ mp.events.add('phone:addContact', async (player, name, phoneNumber) => {
         
     } catch (err) {
         console.error('[Phone] Ошибка добавления контакта:', err);
+        player.call('client:phoneNotify', ['error', 'Ошибка сервера!']);
     }
 });
 
@@ -494,6 +519,32 @@ mp.events.add('phone:setWaypoint', (player, x, y) => {
 // ===== КАМЕРА =====
 mp.events.add('phone:takePhoto', (player) => {
     player.call('client:takePhoto', []);
+});
+
+// ===== ОЧИСТКА ПРИ ВЫХОДЕ ИГРОКА =====
+mp.events.add('playerQuit', async (player) => {
+    try {
+        const call = activeCalls.get(player.id);
+        if (call) {
+            activeCalls.delete(call.callerPlayerId);
+            activeCalls.delete(call.receiverPlayerId);
+            
+            const otherPlayerId = player.id === call.callerPlayerId ? call.receiverPlayerId : call.callerPlayerId;
+            const otherPlayer = mp.players.at(otherPlayerId);
+            
+            if (otherPlayer && mp.players.exists(otherPlayer)) {
+                otherPlayer.call('client:callEnded', ['Соединение потеряно']);
+            }
+            
+            // Записываем как прерванный звонок
+            await db.query(
+                'INSERT INTO phone_calls (caller_id, receiver_id, status, duration) VALUES (?, ?, ?, 0)',
+                [call.callerId, call.receiverId, 'disconnected']
+            );
+        }
+    } catch (err) {
+        // Игнорируем ошибки при выходе
+    }
 });
 
 console.log('[Phone] ✅ Система телефона загружена!');

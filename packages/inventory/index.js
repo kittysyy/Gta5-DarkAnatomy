@@ -138,7 +138,7 @@ async function getCharacterEquipment(characterId) {
 // ===== ПОИСК СВОБОДНОГО МЕСТА С УЧЁТОМ РАЗМЕРА =====
 async function findFreeSlotForSize(characterId, width, height) {
     try {
-        // Получаем ВСЕ предметы с их р��змерами
+        // Получаем ВСЕ предметы с их размерами
         const [items] = await db.query(`
             SELECT ci.slot, i.size_width, i.size_height
             FROM character_inventory ci
@@ -439,7 +439,7 @@ async function useMedical(player, item) {
         } else {
             player.health = Math.min(100, player.health + 20);
         }
-        player.outputChatBox('!{#e91e63}🩹 Вы использов��ли бинт (+20 HP)');
+        player.outputChatBox('!{#e91e63}🩹 Вы использовали бинт (+20 HP)');
         return true;
     }
     
