@@ -144,6 +144,7 @@ mp.events.add('server:login', async (player, login, password) => {
         
         // Загружаем персонажей
         setTimeout(async () => {
+            if (!player || !mp.players.exists(player)) return;
             console.log(`[Server] 📋 Загрузка персонажей для user_id=${user.id}...`);
             
             const [characters] = await db.query(
@@ -225,6 +226,7 @@ mp.events.add('server:register', async (player, login, password) => {
             player.call('client:authResponse', ['success', 'Регистрация успешна!']);
             
             setTimeout(() => {
+                if (!player || !mp.players.exists(player)) return;
                 player.call('client:showCharacterSelection', [JSON.stringify([])]);
             }, 1000);
             
@@ -415,6 +417,7 @@ mp.events.add('server:createCharacter', async (player, characterDataJson) => {
         
         // ЗАГРУЖАЕМ СПИСОК ПЕРСОНАЖЕЙ
         setTimeout(async () => {
+            if (!player || !mp.players.exists(player)) return;
             console.log(`[Server] 📋 Загрузка списка персонажей для user_id=${player.accountId}...`);
             
             const [characters] = await db.query(
@@ -495,7 +498,14 @@ mp.events.add('server:selectCharacter', async (player, characterId) => {
             position_y: character.position_y,
             position_z: character.position_z,
             heading: character.heading,
-            appearance: character.appearance ? JSON.parse(character.appearance) : null
+            appearance: (() => {
+                try {
+                    return character.appearance ? JSON.parse(character.appearance) : null;
+                } catch (e) {
+                    console.error(`[Server] Invalid appearance JSON for character ${character.id}:`, e.message);
+                    return null;
+                }
+            })()
         };
         
         console.log(`[Server] Данные персонажа подготовлены для отправки`);
@@ -545,6 +555,7 @@ mp.events.add('server:deleteCharacter', async (player, characterId) => {
             
             // ОБНОВЛЯЕМ СПИСОК
             setTimeout(async () => {
+                if (!player || !mp.players.exists(player)) return;
                 const [characters] = await db.query(
                     'SELECT id, name, surname, age, gender, money, bank, level, last_active FROM characters WHERE user_id = ?',
                     [player.accountId]
