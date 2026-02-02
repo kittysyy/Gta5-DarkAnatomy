@@ -84,7 +84,9 @@ setInterval(() => {
                 player.call('client:updateHUD', [JSON.stringify(hudData)]);
             }
             
-        } catch (err) {}
+        } catch (err) {
+            console.error('[HUD] Ошибка автообновления:', err.message);
+        }
     });
 }, 10000);
 
