@@ -14,6 +14,9 @@ require('./safezones/index.js');
 
 require('./vehicle-rental/index.js');
 
+// ===== ПОДКЛЮЧЕНИЕ СИСТЕМЫ РАБОТ =====
+require('./jobs/index.js');
+
 let authBrowser = null;
 let characterBrowser = null;
 let characterSelectionBrowser = null;

@@ -1542,6 +1542,23 @@ body {
     box-shadow: 0 5px 25px rgba(244, 67, 54, 0.4);
 }
 
+/* Подсказка в деталях работы */
+.job-hint {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 10px;
+    padding: 15px 20px;
+    color: #ffc107;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95em;
+}
+
+.job-hint i {
+    font-size: 1.2em;
+}
+
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

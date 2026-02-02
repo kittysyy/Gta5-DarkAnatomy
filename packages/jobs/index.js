@@ -107,8 +107,6 @@ function initJobSystem() {
 // Вызываем через 3 секунды после старта
 setTimeout(initJobSystem, 3000);
 
-setTimeout(initJobSystem, 3000);
-
 // ===== ОТПРАВКА БЛИПА ИГРОКАМ =====
 mp.events.add('playerReady', (player) => {
     setTimeout(() => {
@@ -217,23 +215,77 @@ mp.events.add('npc:interact', (player, npcId) => {
     }
 });
 
+// ===== ВЗАИМОДЕЙСТВИЕ С NPC — СНАЧАЛА ДИАЛОГ =====
 mp.events.add('jobs:openCourierNPC', async (player) => {
     if (!player.characterId) return;
     
-    const jobData = await getPlayerJobData(player.characterId, 'courier');
-    const bonus = COURIER_CONFIG.levelBonuses[jobData.level] || COURIER_CONFIG.levelBonuses[1];
     const activeWorker = activeWorkers.get(player.id);
     
-    player.call('client:openCourierNPC', [JSON.stringify({
-        level: jobData.level,
-        experience: jobData.experience,
-        rank: bonus.description,
-        totalDeliveries: jobData.total_completed,
-        totalEarned: jobData.total_earned,
-        isWorking: !!activeWorker,
-        vehicles: COURIER_CONFIG.vehicles,
-        playerCash: player.cash || 0
+    // Открываем диалог
+    player.call('client:openCourierDialog', [JSON.stringify({
+        isWorking: !!activeWorker
     })]);
+});
+
+// ===== ОБРАБОТКА ВЫБОРА В ДИАЛОГЕ =====
+mp.events.add('jobs:dialogOption', async (player, option) => {
+    if (!player.characterId) return;
+    
+    console.log(`[Jobs] ${player.name} выбрал: ${option}`);
+    
+    switch (option) {
+        case 'start':
+            // Открываем меню выбора транспорта
+            const jobData = await getPlayerJobData(player.characterId, 'courier');
+            const bonus = COURIER_CONFIG.levelBonuses[jobData.level] || COURIER_CONFIG.levelBonuses[1];
+            
+            player.call('client:openCourierNPC', [JSON.stringify({
+                level: jobData.level,
+                experience: jobData.experience,
+                rank: bonus.description,
+                totalDeliveries: jobData.total_completed,
+                totalEarned: jobData.total_earned,
+                isWorking: false,
+                vehicles: COURIER_CONFIG.vehicles,
+                playerCash: player.cash || 0
+            })]);
+            break;
+            
+        case 'info':
+            player.call('client:closeAllJobMenus');
+            player.outputChatBox('!{#ffd700}[Менеджер] Работа простая:');
+            player.outputChatBox('!{#ffffff}1. Арендуешь транспорт или используешь свой');
+            player.outputChatBox('!{#ffffff}2. Открываешь планшет и берёшь контракт');
+            player.outputChatBox('!{#ffffff}3. Забираешь груз и доставляешь по адресу');
+            player.outputChatBox('!{#4caf50}Чем выше уровень — тем больше платят!');
+            break;
+            
+        case 'stats':
+            player.call('client:closeAllJobMenus');
+            const stats = await getPlayerJobData(player.characterId, 'courier');
+            const rankBonus = COURIER_CONFIG.levelBonuses[stats.level] || COURIER_CONFIG.levelBonuses[1];
+            player.outputChatBox('!{#ffd700}=== Твоя статистика ===');
+            player.outputChatBox(`!{#ffffff}Ранг: ${rankBonus.description} (Ур. ${stats.level})`);
+            player.outputChatBox(`!{#ffffff}Доставок: ${stats.total_completed}`);
+            player.outputChatBox(`!{#4caf50}Заработано: $${stats.total_earned}`);
+            break;
+            
+        case 'tablet':
+            player.call('client:closeAllJobMenus');
+            setTimeout(() => {
+                mp.events.call('tablet:open', player, 'deliveries');
+            }, 300);
+            break;
+            
+        case 'stop':
+            player.call('client:closeAllJobMenus');
+            mp.events.call('jobs:stopWork', player);
+            break;
+            
+        case 'exit':
+            player.call('client:closeAllJobMenus');
+            break;
+    }
 });
 
 // ===== НАЧАТЬ РАБОТУ С АРЕНДОЙ =====
@@ -360,9 +412,11 @@ mp.events.add('tablet:open', async (player, tab) => {
     const worker = activeWorkers.get(player.id);
     const jobData = await getPlayerJobData(player.characterId, 'courier');
     
+    console.log(`[Jobs] Планшет для ${player.name}, isWorking: ${!!worker}`); // Добавь лог
+    
     player.call('client:openTablet', [JSON.stringify({
         tab: tab || 'main',
-        isWorking: !!worker,
+        isWorking: !!worker,  // <-- Это должно быть true когда работаем
         jobData: {
             level: jobData.level,
             experience: jobData.experience,

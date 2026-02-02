@@ -1,14 +1,21 @@
 let tabletData = null;
-let currentScreen = 'main';
 
 function loadTabletData(dataJson) {
     try {
-        if (typeof dataJson === 'string' && dataJson !== 'main') {
+        if (typeof dataJson === 'string' && dataJson.length > 2) {
             tabletData = JSON.parse(dataJson);
+        } else {
+            tabletData = {};
         }
         
-        updateTime();
-        setInterval(updateTime, 1000);
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+        
+        // Скрываем/показываем иконку доставок
+        const deliveryApp = document.getElementById('deliveryApp');
+        if (deliveryApp) {
+            deliveryApp.style.display = tabletData?.isWorking ? 'flex' : 'none';
+        }
         
         // Открываем нужную вкладку
         if (tabletData?.tab) {
@@ -18,15 +25,20 @@ function loadTabletData(dataJson) {
         renderDeliveries();
         
     } catch (err) {
-        console.error('Ошибка загрузки:', err);
+        console.error('[Tablet] Ошибка:', err);
     }
 }
 
-function updateTime() {
+function updateDateTime() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
+    
+    const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+    const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+    
     document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
+    document.getElementById('currentDate').textContent = `${days[now.getDay()]}, ${now.getDate().toString().padStart(2, '0')} ${months[now.getMonth()]}`;
 }
 
 function openApp(appName) {
@@ -35,7 +47,6 @@ function openApp(appName) {
     const screen = document.getElementById(appName + 'Screen');
     if (screen) {
         screen.classList.add('active');
-        currentScreen = appName;
     }
     
     if (appName === 'deliveries') {
@@ -45,120 +56,85 @@ function openApp(appName) {
 
 function goHome() {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('mainScreen').classList.add('active');
-    currentScreen = 'main';
+    document.getElementById('homeScreen').classList.add('active');
 }
 
 function renderDeliveries() {
     const statusEl = document.getElementById('deliveryStatus');
-    const contractsSection = document.getElementById('contractsSection');
-    const currentContractEl = document.getElementById('currentContract');
+    const contractsEl = document.getElementById('contractsSection');
     
     if (!tabletData?.isWorking) {
         statusEl.innerHTML = `
-            <p class="not-working">
-                <i class="fas fa-info-circle"></i> Вы не работаете курьером
-            </p>
-            <p style="color: #888; font-size: 0.85em; margin-top: 10px;">
-                Обратитесь к менеджеру курьерской службы возле почты
-            </p>
+            <div class="not-working">
+                <p>😴 Вы не работаете курьером</p>
+                <p style="margin-top:10px;font-size:13px;">Обратитесь к NPC возле почты чтобы на��ать</p>
+            </div>
         `;
-        contractsSection.style.display = 'none';
-        currentContractEl.style.display = 'none';
+        contractsEl.innerHTML = '';
         return;
     }
     
-    // Работаем
     statusEl.innerHTML = `
-        <p class="working">
-            <i class="fas fa-check-circle"></i> Вы работаете курьером
-        </p>
-        <div style="display: flex; justify-content: space-around; margin-top: 15px; color: #aaa; font-size: 0.9em;">
-            <span>Уровень: <strong style="color: #ffd700;">${tabletData.jobData?.level || 1}</strong></span>
-            <span>Доставок: <strong style="color: #fff;">${tabletData.jobData?.totalCompleted || 0}</strong></span>
+        <div class="working">
+            <i class="fas fa-check-circle"></i>
+            Вы на смене
+        </div>
+        <div style="margin-top:15px;display:flex;gap:30px;color:#8e8e93;font-size:13px;">
+            <span>Уровень: <strong style="color:#fff">${tabletData.jobData?.level || 1}</strong></span>
+            <span>Доставок: <strong style="color:#fff">${tabletData.jobData?.totalCompleted || 0}</strong></span>
         </div>
     `;
     
     // Текущий контракт
     if (tabletData.currentContract) {
-        currentContractEl.style.display = 'block';
-        contractsSection.style.display = 'none';
-        
-        const contract = tabletData.currentContract;
-        const isPickup = contract.status !== 'delivery';
-        
-        document.getElementById('contractDetails').innerHTML = `
-            <div class="cargo-info">
-                <div class="cargo-icon">${contract.cargo?.icon || '📦'}</div>
-                <div>
-                    <div class="cargo-name">${contract.cargo?.name || 'Груз'}</div>
-                    <div class="status">${isPickup ? '⏳ Ожидает погрузки' : '🚚 В пути'}</div>
+        const c = tabletData.currentContract;
+        contractsEl.innerHTML = `
+            <h3>📋 Текущий контракт</h3>
+            <div class="contract-card" style="border-color: #30d158;">
+                <div class="contract-cargo">
+                    <span class="icon">${c.cargo?.icon || '📦'}</span>
+                    <span class="name">${c.cargo?.name || 'Груз'}</span>
                 </div>
-            </div>
-            <div class="route-info">
-                <div class="route-point ${isPickup ? 'active' : ''}">
-                    <i class="fas fa-box"></i>
-                    <span>${contract.pickup?.name || 'Погрузка'}</span>
+                <div class="contract-route">
+                    <i class="fas fa-route"></i>
+                    ${c.pickup?.name} → ${c.delivery?.name}
                 </div>
-                <div class="route-point ${!isPickup ? 'active' : ''}">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>${contract.delivery?.name || 'Доставка'}</span>
+                <div class="contract-footer">
+                    <span class="contract-reward">$${c.reward}</span>
+                    <span style="color:#ff9f0a;">${c.status === 'delivery' ? '🚚 В пути' : '📦 Забрать груз'}</span>
                 </div>
-            </div>
-            <div class="reward-info">
-                <span>Награда:</span>
-                <span class="reward">$${contract.reward || 0}</span>
             </div>
         `;
-    } else {
-        currentContractEl.style.display = 'none';
-        contractsSection.style.display = 'block';
-        
-        renderContracts();
-    }
-}
-
-function renderContracts() {
-    const container = document.getElementById('contractsList');
-    container.innerHTML = '';
-    
-    const contracts = tabletData?.availableContracts || [];
-    
-    if (contracts.length === 0) {
-        container.innerHTML = '<p style="color: #888; text-align: center;">Нет доступных контрактов</p>';
         return;
     }
     
-    contracts.forEach((contract, index) => {
-        const card = document.createElement('div');
-        card.className = 'contract-card';
-        
-        card.innerHTML = `
-            <div class="contract-header">
-                <div class="contract-cargo">${contract.cargo?.icon || '📦'}</div>
-                <div class="contract-type">${contract.cargo?.name || 'Груз'}</div>
-            </div>
-            <div class="contract-route">
-                <div class="from">
-                    <i class="fas fa-box"></i>
-                    <span>${contract.pickup?.name || 'Погрузка'}</span>
+    // Доступные контракты
+    const contracts = tabletData.availableContracts || [];
+    
+    if (contracts.length === 0) {
+        contractsEl.innerHTML = '<p style="color:#8e8e93;text-align:center;">Нет доступных контрактов</p>';
+        return;
+    }
+    
+    contractsEl.innerHTML = `
+        <h3>📋 Доступные контракты</h3>
+        ${contracts.map((c, i) => `
+            <div class="contract-card" onclick="acceptContract(${i})">
+                <div class="contract-cargo">
+                    <span class="icon">${c.cargo?.icon || '📦'}</span>
+                    <span class="name">${c.cargo?.name || 'Груз'}</span>
                 </div>
-                <div class="to">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>${contract.delivery?.name || 'Доставка'}</span>
+                <div class="contract-route">
+                    <i class="fas fa-route"></i>
+                    ${c.pickup?.name} → ${c.delivery?.name}
+                </div>
+                <div class="contract-footer">
+                    <span class="contract-reward">$${c.reward}</span>
+                    <span class="contract-exp">+${c.exp || 15} EXP</span>
                 </div>
             </div>
-            <div class="contract-footer">
-                <div>
-                    <div class="contract-reward">$${contract.reward}</div>
-                    <div class="contract-distance">~${contract.distance}м</div>
-                </div>
-                <button class="accept-btn" onclick="acceptContract(${index})">Принять</button>
-            </div>
-        `;
-        
-        container.appendChild(card);
-    });
+        `).join('')}
+    `;
 }
 
 function acceptContract(index) {
@@ -180,7 +156,8 @@ function closeTablet() {
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-        if (currentScreen !== 'main') {
+        const homeScreen = document.getElementById('homeScreen');
+        if (!homeScreen.classList.contains('active')) {
             goHome();
         } else {
             closeTablet();

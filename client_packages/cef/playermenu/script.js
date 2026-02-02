@@ -612,10 +612,16 @@ function openJobDetails(job) {
         bonusesList.appendChild(item);
     }
     
-    // Кнопки
-    const isWorking = job.isWorking || false;
-    document.getElementById('startWorkBtn').style.display = isWorking ? 'none' : 'flex';
-    document.getElementById('stopWorkBtn').style.display = isWorking ? 'flex' : 'none';
+    // УБИРАЕМ КНОПКИ - показываем только информацию
+    const actionsEl = document.getElementById('jobDetailActions');
+    if (actionsEl) {
+        actionsEl.innerHTML = `
+            <div class="job-hint">
+                <i class="fas fa-info-circle"></i>
+                Чтобы начать работу, обратитесь к NPC на карте
+            </div>
+        `;
+    }
 }
 
 function closeJobDetails() {

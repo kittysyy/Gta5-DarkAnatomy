@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Диалог</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: transparent; display: flex; justify-content: center; align-items: flex-end; min-height: 100vh; padding-bottom: 50px; }
+        
+        .dialog-container {
+            background: linear-gradient(135deg, rgba(20, 25, 35, 0.95), rgba(30, 35, 50, 0.95));
+            border-radius: 15px;
+            width: 600px;
+            border: 2px solid #ff8c00;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .dialog-header {
+            background: linear-gradient(90deg, #ff8c00, #ffd700);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .npc-avatar {
+            font-size: 2.5em;
+            width: 60px;
+            height: 60px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .npc-name {
+            color: #1a1a2e;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        
+        .npc-title {
+            color: rgba(0,0,0,0.7);
+            font-size: 0.9em;
+        }
+        
+        .dialog-content {
+            padding: 25px;
+        }
+        
+        .dialog-text {
+            color: #ddd;
+            font-size: 1.05em;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        .dialog-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .dialog-option {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px 20px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .dialog-option:hover {
+            background: rgba(255,140,0,0.2);
+            border-color: #ff8c00;
+            transform: translateX(5px);
+        }
+        
+        .dialog-option.primary {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2));
+            border-color: #4caf50;
+        }
+        
+        .dialog-option.primary:hover {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.5), rgba(139, 195, 74, 0.3));
+        }
+        
+        .dialog-option i {
+            font-size: 1.2em;
+            width: 25px;
+            color: #ffd700;
+        }
+        
+        .dialog-option.primary i { color: #4caf50; }
+        .dialog-option.exit i { color: #f44336; }
+        
+        .option-text { flex: 1; }
+        .option-hint { font-size: 0.85em; color: #888; }
+    </style>
+</head>
+<body>
+    <div class="dialog-container">
+        <div class="dialog-header">
+            <div class="npc-avatar">👨‍💼</div>
+            <div>
+                <div class="npc-name">Менеджер доставки</div>
+                <div class="npc-title">Los Santos Express</div>
+            </div>
+        </div>
+        
+        <div class="dialog-content">
+            <div class="dialog-text" id="dialogText">
+                Привет! Ищешь работу? У нас в курьерской службе всегда нужны надёжные люди. 
+                Работа простая — забираешь посылки и доставляешь по адресам. 
+                Чем больше доставок — тем выше твой ранг и зарплата!
+            </div>
+            
+            <div class="dialog-options" id="dialogOptions">
+                <div class="dialog-option primary" onclick="selectOption('start')">
+                    <i class="fas fa-briefcase"></i>
+                    <div>
+                        <div class="option-text">Хочу устроиться на работу</div>
+                        <div class="option-hint">Выбрать транспорт и начать доставки</div>
+                    </div>
+                </div>
+                <div class="dialog-option" onclick="selectOption('info')">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <div class="option-text">Расскажи подробнее о работе</div>
+                    </div>
+                </div>
+                <div class="dialog-option" onclick="selectOption('stats')">
+                    <i class="fas fa-chart-bar"></i>
+                    <div>
+                        <div class="option-text">Моя статистика</div>
+                    </div>
+                </div>
+                <div class="dialog-option exit" onclick="selectOption('exit')">
+                    <i class="fas fa-door-open"></i>
+                    <div>
+                        <div class="option-text">До свидания</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let dialogData = null;
+        
+        function loadDialogData(dataJson) {
+            try {
+                dialogData = JSON.parse(dataJson);
+                
+                // Если уже работает — другой текст
+                if (dialogData.isWorking) {
+                    document.getElementById('dialogText').textContent = 
+                        'С возвращением! Ты сейчас на смене. Открой планшет чтобы взять новый контракт, или можешь закончить работу.';
+                    
+                    document.getElementById('dialogOptions').innerHTML = `
+                        <div class="dialog-option primary" onclick="selectOption('tablet')">
+                            <i class="fas fa-tablet-alt"></i>
+                            <div>
+                                <div class="option-text">Открыть планшет</div>
+                                <div class="option-hint">Взять новый контракт</div>
+                            </div>
+                        </div>
+                        <div class="dialog-option" onclick="selectOption('stop')">
+                            <i class="fas fa-stop-circle"></i>
+                            <div>
+                                <div class="option-text">Закончить смену</div>
+                                <div class="option-hint">Вернуть транспорт и получить залог</div>
+                            </div>
+                        </div>
+                        <div class="dialog-option exit" onclick="selectOption('exit')">
+                            <i class="fas fa-door-open"></i>
+                            <div><div class="option-text">До свидания</div></div>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error('Ошибка:', err);
+            }
+        }
+        
+        function selectOption(option) {
+            if (typeof mp !== 'undefined') {
+                mp.trigger('cef:dialogOption', option);
+            }
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') selectOption('exit');
+        });
+    </script>
+</body>
+</html>

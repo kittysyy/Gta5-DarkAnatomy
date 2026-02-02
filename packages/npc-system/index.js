@@ -51,6 +51,14 @@ mp.events.add('npc:interact', (player, npcId) => {
     if (!player || !mp.players.exists(player)) return;
     
     const ped = spawnedNPCs.find(p => p.getVariable('npcId') === npcId);
+    
+    // Проверяем NPC курьера (создаётся в jobs)
+    if (npcId === 'courier_npc') {
+        console.log(`[NPC System] ${player.name} → Курьерская служба`);
+        mp.events.call('jobs:openCourierNPC', player);
+        return;
+    }
+    
     if (!ped) return;
     
     const distance = player.position.subtract(ped.position).length();
@@ -62,7 +70,7 @@ mp.events.add('npc:interact', (player, npcId) => {
     console.log(`[NPC System] ${player.name} → ${npcName}`);
     
     if (npcType === 'shop') {
-        player.outputChatBox(`!{#00ff00}[${npcName}] До��ро пожаловать!`);
+        player.outputChatBox(`!{#00ff00}[${npcName}] Добро пожаловать!`);
     } else if (npcType === 'quest') {
         if (global.questSystem && ped.npcData?.questId) {
             global.questSystem.openQuestDialog(player, ped.npcData.questId);

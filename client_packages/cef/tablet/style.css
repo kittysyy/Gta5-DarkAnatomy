@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
 }
 
 body {
@@ -13,49 +13,91 @@ body {
     min-height: 100vh;
 }
 
-.tablet-container {
-    perspective: 1000px;
-}
-
-.tablet-frame {
-    width: 400px;
+/* ===== TABLET ===== */
+.tablet {
+    width: 900px;
     height: 600px;
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
-    border-radius: 30px;
-    border: 3px solid #333;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600"><defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%230a0a0f"/><stop offset="100%" style="stop-color:%230d1020"/></linearGradient></defs><rect fill="url(%23bg)" width="900" height="600"/></svg>');
+    background-size: cover;
+    border-radius: 25px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    box-shadow: 0 30px 100px rgba(0, 0, 0, 0.8);
+    border: 3px solid #2a2a35;
+    position: relative;
 }
 
-.tablet-header {
-    height: 30px;
-    background: rgba(0,0,0,0.3);
+/* Абстрактный фон */
+.tablet::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(ellipse 400px 350px at 35% 60%, rgba(255, 140, 50, 0.6) 0%, transparent 70%),
+        radial-gradient(ellipse 300px 300px at 45% 55%, rgba(100, 120, 180, 0.5) 0%, transparent 70%),
+        radial-gradient(ellipse 250px 250px at 70% 70%, rgba(80, 180, 180, 0.4) 0%, transparent 70%),
+        radial-gradient(ellipse 200px 200px at 85% 80%, rgba(50, 100, 220, 0.5) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ===== STATUS BAR ===== */
+.status-bar {
+    height: 28px;
+    padding: 0 25px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px;
     color: #fff;
-    font-size: 0.85em;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.2);
 }
 
-.status-icons {
+.status-left {
     display: flex;
-    gap: 10px;
+    gap: 15px;
 }
 
+.status-left .time {
+    font-weight: 600;
+}
+
+.status-left .date {
+    opacity: 0.8;
+}
+
+.status-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+}
+
+.wifi {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ===== CONTENT ===== */
 .tablet-content {
     flex: 1;
-    overflow-y: auto;
     position: relative;
+    z-index: 5;
+    overflow: hidden;
 }
 
 .screen {
     display: none;
-    padding: 20px;
     height: 100%;
-    animation: fadeIn 0.3s ease;
+    padding: 25px 40px;
+    animation: fadeIn 0.25s ease;
 }
 
 .screen.active {
@@ -63,16 +105,16 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateX(20px); }
-    to { opacity: 1; transform: translateX(0); }
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
 }
 
-/* Главный экран - приложения */
+/* ===== APPS GRID ===== */
 .apps-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    padding: 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px 50px;
+    padding-top: 15px;
 }
 
 .app {
@@ -80,144 +122,189 @@ body {
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: transform 0.15s;
+    width: 90px;
 }
 
 .app:hover {
-    transform: scale(1.1);
+    transform: scale(1.08);
+}
+
+.app:active {
+    transform: scale(0.95);
 }
 
 .app-icon {
     width: 60px;
     height: 60px;
-    border-radius: 15px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8em;
-    margin-bottom: 8px;
-}
-
-.app-icon.delivery { background: linear-gradient(135deg, #ff8c00, #ffd700); }
-.app-icon.family { background: linear-gradient(135deg, #e91e63, #ff5722); }
-.app-icon.faction { background: linear-gradient(135deg, #2196f3, #03a9f4); }
-.app-icon.auction { background: linear-gradient(135deg, #9c27b0, #673ab7); }
-.app-icon.settings { background: linear-gradient(135deg, #607d8b, #455a64); }
-
-.app span {
+    font-size: 24px;
     color: #fff;
-    font-size: 0.85em;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-/* Заголовок приложения */
-.app-header {
+.app-icon.dark {
+    background: linear-gradient(135deg, #2c2c2e, #1c1c1e);
+    color: #ffd700;
+}
+
+.app-icon.blue {
+    background: linear-gradient(135deg, #5ac8fa, #007aff);
+}
+
+.app-icon.orange {
+    background: linear-gradient(135deg, #ff9f0a, #ff6b00);
+}
+
+.app-icon.teal {
+    background: linear-gradient(135deg, #30d158, #00c7be);
+}
+
+.app-icon.navy {
+    background: linear-gradient(135deg, #5856d6, #0a84ff);
+}
+
+.app-icon.yellow {
+    background: linear-gradient(135deg, #ffd60a, #ffcc00);
+    color: #1c1c1e;
+}
+
+.app-icon.white {
+    background: linear-gradient(135deg, #f5f5f7, #e5e5e7);
+}
+
+.app-icon.pink {
+    background: linear-gradient(135deg, #ff2d55, #ff375f);
+}
+
+.app-icon.purple {
+    background: linear-gradient(135deg, #bf5af2, #af52de);
+}
+
+.app-name {
+    color: #fff;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== SCREEN HEADER ===== */
+.screen-header {
     display: flex;
     align-items: center;
     gap: 15px;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 25px;
 }
 
-.app-header h2 {
+.screen-header h2 {
     color: #fff;
-    font-size: 1.2em;
+    font-size: 22px;
+    font-weight: 600;
 }
 
 .back-btn {
-    background: rgba(255,255,255,0.1);
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
     border: none;
     color: #fff;
-    width: 35px;
-    height: 35px;
-    border-radius: 10px;
     cursor: pointer;
-    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s;
 }
 
 .back-btn:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.25);
 }
 
-/* Статус доставки */
+/* ===== DELIVERY CONTENT ===== */
+.delivery-content {
+    height: calc(100% - 70px);
+    overflow-y: auto;
+}
+
 .delivery-status {
-    background: rgba(255,255,255,0.05);
-    padding: 20px;
-    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 25px;
     margin-bottom: 20px;
 }
 
-.delivery-status .not-working {
-    color: #888;
-    text-align: center;
-}
-
 .delivery-status .working {
-    color: #4caf50;
-}
-
-/* Контракты */
-.contracts-section h3,
-.current-contract h3 {
-    color: #ffd700;
-    margin-bottom: 15px;
-    font-size: 1em;
-}
-
-.contracts-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.contract-card {
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-    padding: 15px;
-    border: 1px solid rgba(255,255,255,0.1);
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.contract-card:hover {
-    background: rgba(255,140,0,0.15);
-    border-color: #ff8c00;
-}
-
-.contract-header {
+    color: #30d158;
+    font-size: 16px;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 10px;
+}
+
+.delivery-status .not-working {
+    color: #8e8e93;
+    font-size: 15px;
+    text-align: center;
+}
+
+.contracts-section h3 {
+    color: #ff9f0a;
+    font-size: 15px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.contract-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.contract-card:hover {
+    background: rgba(255, 149, 0, 0.15);
+    border-color: rgba(255, 149, 0, 0.4);
+    transform: translateX(5px);
 }
 
 .contract-cargo {
-    font-size: 1.5em;
-}
-
-.contract-type {
-    color: #fff;
-    font-weight: bold;
-}
-
-.contract-route {
     display: flex;
-    flex-direction: column;
-    gap: 5px;
-    font-size: 0.85em;
-    color: #aaa;
+    align-items: center;
+    gap: 12px;
     margin-bottom: 10px;
 }
 
-.contract-route .from,
-.contract-route .to {
+.contract-cargo .icon {
+    font-size: 28px;
+}
+
+.contract-cargo .name {
+    color: #fff;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.contract-route {
+    color: #8e8e93;
+    font-size: 13px;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     gap: 8px;
 }
-
-.contract-route .from i { color: #ffd700; }
-.contract-route .to i { color: #4caf50; }
 
 .contract-footer {
     display: flex;
@@ -226,147 +313,95 @@ body {
 }
 
 .contract-reward {
-    color: #4caf50;
-    font-weight: bold;
-    font-size: 1.1em;
+    color: #30d158;
+    font-weight: 700;
+    font-size: 18px;
 }
 
-.contract-distance {
-    color: #888;
-    font-size: 0.85em;
+.contract-exp {
+    color: #5ac8fa;
+    font-size: 13px;
 }
 
-.accept-btn {
-    background: linear-gradient(135deg, #4caf50, #8bc34a);
-    border: none;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s;
-}
-
-.accept-btn:hover {
-    transform: scale(1.05);
-}
-
-/* Текущий контракт */
-.contract-details {
-    background: linear-gradient(135deg, rgba(255,140,0,0.2), rgba(255,215,0,0.1));
-    padding: 20px;
-    border-radius: 15px;
-    border: 1px solid #ff8c00;
-}
-
-.contract-details .cargo-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.contract-details .cargo-icon {
-    font-size: 2.5em;
-}
-
-.contract-details .cargo-name {
-    color: #fff;
-    font-size: 1.2em;
-    font-weight: bold;
-}
-
-.contract-details .status {
-    color: #ffd700;
-    font-size: 0.9em;
-}
-
-.contract-details .route-info {
-    background: rgba(0,0,0,0.2);
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-}
-
-.contract-details .route-point {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 0;
-    color: #ccc;
-}
-
-.contract-details .route-point.active {
-    color: #4caf50;
-    font-weight: bold;
-}
-
-.contract-details .route-point i {
-    width: 20px;
-}
-
-.contract-details .reward-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.contract-details .reward {
-    color: #4caf50;
-    font-size: 1.3em;
-    font-weight: bold;
-}
-
-/* Заглушка */
+/* ===== COMING SOON ===== */
 .coming-soon {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 80%;
-    color: #666;
+    height: 60%;
+    color: rgba(255, 255, 255, 0.3);
 }
 
 .coming-soon i {
-    font-size: 3em;
-    margin-bottom: 15px;
+    font-size: 60px;
+    margin-bottom: 20px;
 }
 
-/* Навигация */
-.tablet-nav {
-    height: 50px;
-    background: rgba(0,0,0,0.3);
+.coming-soon p {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* ===== DOCK ===== */
+.dock {
+    height: 70px;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 40px;
+    z-index: 10;
 }
 
-.tablet-nav button {
-    background: rgba(255,255,255,0.1);
+.dock-container {
+    display: flex;
+    gap: 15px;
+    padding: 12px 25px;
+    background: rgba(50, 50, 60, 0.6);
+    backdrop-filter: blur(20px);
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dock-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
     border: none;
-    color: #fff;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
     cursor: pointer;
-    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.2s;
 }
 
-.tablet-nav button:hover {
-    background: rgba(255,255,255,0.2);
+.dock-btn {
+    background: linear-gradient(135deg, #30d158, #00c7be);
+    color: #fff;
 }
 
-/* Скроллбар */
-.tablet-content::-webkit-scrollbar {
-    width: 5px;
+.dock-btn.home-btn {
+    background: linear-gradient(135deg, #ff9f0a, #ff6b00);
 }
 
-.tablet-content::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.05);
+.dock-btn:hover {
+    transform: scale(1.1) translateY(-5px);
 }
 
-.tablet-content::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.2);
-    border-radius: 5px;
+.dock-btn:active {
+    transform: scale(0.95);
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
 }
