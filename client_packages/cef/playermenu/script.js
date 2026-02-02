@@ -112,12 +112,42 @@ function updateSkillsUI() {
 }
 
 // ===== TABS =====
+// ===== TABS =====
 function switchTab(tabName) {
+    // Убираем active со всех кнопок
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    
+    // Убираем active со всех вкладок
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
 
-    event.target.closest('.tab-btn').classList.add('active');
-    document.getElementById(tabName + '-tab').classList.add('active');
+    // Активируем нужную кнопку
+    const buttons = document.querySelectorAll('.tab-btn');
+    buttons.forEach(btn => {
+        if (btn.textContent.toLowerCase().includes(getTabButtonText(tabName))) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Активируем нужную вкладку
+    const targetTab = document.getElementById(tabName + '-tab');
+    if (targetTab) {
+        targetTab.classList.add('active');
+    }
+    
+    // Запрашиваем данные работ при открытии вкладки
+    if (tabName === 'jobs') {
+        requestJobsData();
+    }
+}
+
+function getTabButtonText(tabName) {
+    const mapping = {
+        'info': 'персонаж',
+        'skills': 'навыки',
+        'quests': 'задания',
+        'jobs': 'работы'
+    };
+    return mapping[tabName] || tabName;
 }
 
 // ===== SKILLS =====
@@ -443,5 +473,181 @@ document.addEventListener('keydown', (e) => {
         closeMenu();
     }
 });
+
+// ===== РАБОТЫ В МЕНЮ ИГРОКА =====
+mp.events.add('cef:requestJobs', () => {
+    mp.events.callRemote('jobs:getPlayerJobs');
+});
+
+mp.events.add('cef:openJobDetails', (jobId) => {
+    closePlayerMenu();
+    
+    if (jobId === 'courier') {
+        mp.events.callRemote('jobs:openCourierMenu');
+    }
+});
+
+mp.events.add('client:updatePlayerJobs', (jobsJson) => {
+    if (playerMenuBrowser) {
+        const safeJson = jobsJson.replace(/'/g, "\\'");
+        playerMenuBrowser.execute(`loadJobsData(JSON.parse('${safeJson}'))`);
+    }
+});
+
+// ===== СИСТЕМА РАБОТ =====
+let jobsData = [];
+let currentJobDetail = null;
+
+const LEVEL_BONUSES = {
+    1: { multiplier: 1.0, tip: 0, description: 'Стажёр' },
+    2: { multiplier: 1.1, tip: 5, description: 'Новичок' },
+    3: { multiplier: 1.2, tip: 10, description: 'Курьер' },
+    4: { multiplier: 1.35, tip: 15, description: 'Опытный курьер' },
+    5: { multiplier: 1.5, tip: 20, description: 'Старший курьер' },
+    6: { multiplier: 1.7, tip: 30, description: 'Бригадир' },
+    7: { multiplier: 1.9, tip: 40, description: 'Супервайзер' },
+    8: { multiplier: 2.1, tip: 50, description: 'Менеджер доставки' },
+    9: { multiplier: 2.4, tip: 65, description: 'Региональный менеджер' },
+    10: { multiplier: 3.0, tip: 100, description: 'Директор логистики' }
+};
+
+function loadJobsData(data) {
+    console.log('[PlayerMenu] Загружены работы:', data);
+    jobsData = data || [];
+    renderJobs();
+}
+
+function renderJobs() {
+    const container = document.getElementById('jobsGrid');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (!jobsData || jobsData.length === 0) {
+        container.innerHTML = `
+            <div class="no-jobs">
+                <i class="fas fa-briefcase" style="font-size: 3em; opacity: 0.5; margin-bottom: 15px;"></i>
+                <p>Доступные работы</p>
+                <p style="font-size: 0.85em; color: #888; margin-top: 10px;">
+                    Найдите NPC работодателей в городе.<br>
+                    Курьерская служба возле почты.
+                </p>
+            </div>
+        `;
+        return;
+    }
+    
+    jobsData.forEach(job => {
+        const card = document.createElement('div');
+        card.className = 'job-card';
+        card.onclick = () => openJobDetails(job);
+        
+        const expPercent = job.expProgress || 0;
+        const rankName = job.bonus?.description || LEVEL_BONUSES[job.level]?.description || 'Новичок';
+        
+        card.innerHTML = `
+            <div class="job-card-header">
+                <div class="job-icon">${job.icon || '💼'}</div>
+                <div class="job-info">
+                    <h3>${job.name}</h3>
+                    <div class="job-rank">${rankName}</div>
+                </div>
+                <div class="job-level-badge">Ур. ${job.level || 1}</div>
+            </div>
+            <div class="job-progress">
+                <div class="job-progress-fill" style="width: ${expPercent}%"></div>
+            </div>
+            <div class="job-stats">
+                <span><i class="fas fa-check"></i> ${job.totalCompleted || 0}</span>
+                <span class="job-pay"><i class="fas fa-dollar-sign"></i> ${(job.totalEarned || 0).toLocaleString()}</span>
+            </div>
+        `;
+        
+        container.appendChild(card);
+    });
+}
+
+function openJobDetails(job) {
+    currentJobDetail = job;
+    
+    document.getElementById('jobsGrid').style.display = 'none';
+    document.getElementById('jobDetails').style.display = 'block';
+    
+    const level = job.level || 1;
+    const bonus = job.bonus || LEVEL_BONUSES[level] || LEVEL_BONUSES[1];
+    const basePay = Math.floor((job.basePay || 150) * bonus.multiplier);
+    
+    document.getElementById('detailIcon').textContent = job.icon || '💼';
+    document.getElementById('detailName').textContent = job.name || 'Работа';
+    document.getElementById('detailRank').textContent = bonus.description;
+    document.getElementById('detailLevel').textContent = level;
+    document.getElementById('detailPay').textContent = '$' + basePay;
+    document.getElementById('detailTip').textContent = 'до $' + bonus.tip;
+    document.getElementById('detailCompleted').textContent = (job.totalCompleted || 0).toLocaleString();
+    document.getElementById('detailEarned').textContent = '$' + (job.totalEarned || 0).toLocaleString();
+    
+    // Прогресс
+    const expPercent = job.expProgress || 0;
+    const expToNext = job.expToNext || 100;
+    document.getElementById('detailExpBar').style.width = expPercent + '%';
+    document.getElementById('detailExpText').textContent = `${job.experience || 0} / ${(job.experience || 0) + expToNext} EXP`;
+    
+    // Бонусы уровней
+    const bonusesList = document.getElementById('bonusesList');
+    bonusesList.innerHTML = '';
+    
+    for (let i = 1; i <= 10; i++) {
+        const b = LEVEL_BONUSES[i];
+        const item = document.createElement('div');
+        item.className = 'bonus-item';
+        
+        if (i < level) item.classList.add('unlocked');
+        if (i === level) item.classList.add('current');
+        
+        item.innerHTML = `
+            <div class="level">${i}</div>
+            <div class="multiplier">x${b.multiplier}</div>
+            <div class="tip">+$${b.tip}</div>
+        `;
+        bonusesList.appendChild(item);
+    }
+    
+    // Кнопки
+    const isWorking = job.isWorking || false;
+    document.getElementById('startWorkBtn').style.display = isWorking ? 'none' : 'flex';
+    document.getElementById('stopWorkBtn').style.display = isWorking ? 'flex' : 'none';
+}
+
+function closeJobDetails() {
+    currentJobDetail = null;
+    document.getElementById('jobDetails').style.display = 'none';
+    document.getElementById('jobsGrid').style.display = 'grid';
+}
+
+function startWork() {
+    if (!currentJobDetail) return;
+    
+    if (typeof mp !== 'undefined') {
+        mp.trigger('cef:startJob', currentJobDetail.id);
+    }
+}
+
+function stopWork() {
+    if (typeof mp !== 'undefined') {
+        mp.trigger('cef:stopJob');
+    }
+}
+
+function requestJobsData() {
+    if (typeof mp !== 'undefined') {
+        mp.trigger('cef:requestJobs');
+    }
+}
+
+// Обновление статуса работы
+function updateJobStatus(isWorking) {
+    document.getElementById('startWorkBtn').style.display = isWorking ? 'none' : 'flex';
+    document.getElementById('stopWorkBtn').style.display = isWorking ? 'flex' : 'none';
+}
 
 console.log('[PlayerMenu] ✅ Script loaded');

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Планшет</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="tablet-container">
+        <div class="tablet-frame">
+            <div class="tablet-header">
+                <div class="time" id="currentTime">12:00</div>
+                <div class="status-icons">
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+            
+            <div class="tablet-content">
+                <!-- Главный экран -->
+                <div class="screen active" id="mainScreen">
+                    <div class="apps-grid">
+                        <div class="app" onclick="openApp('deliveries')">
+                            <div class="app-icon delivery">📦</div>
+                            <span>Доставки</span>
+                        </div>
+                        <div class="app" onclick="openApp('family')">
+                            <div class="app-icon family">👨‍👩‍👧‍👦</div>
+                            <span>Семья</span>
+                        </div>
+                        <div class="app" onclick="openApp('faction')">
+                            <div class="app-icon faction">🏛️</div>
+                            <span>Фракция</span>
+                        </div>
+                        <div class="app" onclick="openApp('auction')">
+                            <div class="app-icon auction">🏷️</div>
+                            <span>Аукцион</span>
+                        </div>
+                        <div class="app" onclick="openApp('settings')">
+                            <div class="app-icon settings">⚙️</div>
+                            <span>Настройки</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Экран доставок -->
+                <div class="screen" id="deliveriesScreen">
+                    <div class="app-header">
+                        <button class="back-btn" onclick="goHome()">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <h2>📦 Доставки</h2>
+                    </div>
+                    
+                    <div class="delivery-status" id="deliveryStatus">
+                        <p class="not-working">Вы не работаете курьером</p>
+                    </div>
+                    
+                    <div class="contracts-section" id="contractsSection" style="display: none;">
+                        <h3>Доступные контракты</h3>
+                        <div class="contracts-list" id="contractsList"></div>
+                    </div>
+                    
+                    <div class="current-contract" id="currentContract" style="display: none;">
+                        <h3>Текущий контракт</h3>
+                        <div class="contract-details" id="contractDetails"></div>
+                    </div>
+                </div>
+                
+                <!-- Заглушки для других приложений -->
+                <div class="screen" id="familyScreen">
+                    <div class="app-header">
+                        <button class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i></button>
+                        <h2>👨‍👩‍👧‍👦 Семья</h2>
+                    </div>
+                    <div class="coming-soon">
+                        <i class="fas fa-tools"></i>
+                        <p>В разработке</p>
+                    </div>
+                </div>
+                
+                <div class="screen" id="factionScreen">
+                    <div class="app-header">
+                        <button class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i></button>
+                        <h2>🏛️ Фракция</h2>
+                    </div>
+                    <div class="coming-soon">
+                        <i class="fas fa-tools"></i>
+                        <p>В разработке</p>
+                    </div>
+                </div>
+                
+                <div class="screen" id="auctionScreen">
+                    <div class="app-header">
+                        <button class="back-btn" onclick="goHome()"><i class="fas fa-arrow-left"></i></button>
+                        <h2>🏷️ Аукцион</h2>
+                    </div>
+                    <div class="coming-soon">
+                        <i class="fas fa-tools"></i>
+                        <p>В разработке</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tablet-nav">
+                <button onclick="goHome()"><i class="fas fa-home"></i></button>
+                <button onclick="closeTablet()"><i class="fas fa-power-off"></i></button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* ===== МЕНЮ РАБОТ ===== */
+.jobs-container {
+    background: linear-gradient(135deg, rgba(20, 20, 30, 0.95), rgba(30, 30, 45, 0.95));
+    border-radius: 15px;
+    width: 600px;
+    max-height: 80vh;
+    border: 2px solid #ffd700;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+
+.jobs-header {
+    background: linear-gradient(90deg, #ffd700, #ffaa00);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.jobs-header h1 {
+    color: #1a1a2e;
+    font-size: 1.5em;
+}
+
+.close-btn {
+    background: rgba(0,0,0,0.3);
+    border: none;
+    color: #1a1a2e;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.close-btn:hover {
+    background: rgba(0,0,0,0.5);
+    transform: rotate(90deg);
+}
+
+.jobs-list {
+    padding: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.job-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255,215,0,0.2);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.job-card:hover {
+    background: rgba(255,215,0,0.1);
+    border-color: #ffd700;
+    transform: translateX(5px);
+}
+
+.job-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.job-icon {
+    font-size: 2em;
+}
+
+.job-title {
+    flex: 1;
+}
+
+.job-title h3 {
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.job-title .rank {
+    color: #ffd700;
+    font-size: 0.85em;
+}
+
+.job-level {
+    background: #ffd700;
+    color: #1a1a2e;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.job-progress {
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.job-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ffd700, #ff8c00);
+    transition: width 0.3s;
+}
+
+.job-stats {
+    display: flex;
+    justify-content: space-between;
+    color: #888;
+    font-size: 0.85em;
+}
+
+/* ===== МЕНЮ КУРЬЕРА ===== */
+.courier-container {
+    background: linear-gradient(135deg, rgba(20, 20, 30, 0.95), rgba(30, 30, 45, 0.95));
+    border-radius: 15px;
+    width: 450px;
+    border: 2px solid #ff8c00;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+.courier-header {
+    background: linear-gradient(90deg, #ff8c00, #ffd700);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.courier-header h1 {
+    color: #1a1a2e;
+    font-size: 1.3em;
+}
+
+.courier-stats {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    color: #888;
+}
+
+.stat-value {
+    color: #ffd700;
+    font-weight: bold;
+}
+
+.progress-bar {
+    height: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff8c00, #ffd700);
+    width: 0%;
+    transition: width 0.5s;
+}
+
+.exp-text {
+    color: #888;
+    font-size: 0.85em;
+    text-align: center;
+}
+
+.courier-info {
+    padding: 20px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: #ccc;
+}
+
+.info-row .money {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+.courier-actions {
+    padding: 20px;
+}
+
+.start-btn, .stop-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.start-btn {
+    background: linear-gradient(90deg, #4caf50, #8bc34a);
+    color: white;
+}
+
+.start-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+}
+
+.stop-btn {
+    background: linear-gradient(90deg, #f44336, #ff5722);
+    color: white;
+}
+
+.stop-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 20px rgba(244, 67, 54, 0.4);
+}

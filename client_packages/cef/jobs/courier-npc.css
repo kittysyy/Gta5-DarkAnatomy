@@ -1,0 +1,226 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.npc-container {
+    background: linear-gradient(135deg, rgba(20, 25, 35, 0.95), rgba(30, 35, 50, 0.95));
+    border-radius: 20px;
+    width: 500px;
+    border: 2px solid #ff8c00;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+
+.npc-header {
+    background: linear-gradient(135deg, #ff8c00, #ffd700);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.npc-avatar {
+    font-size: 3em;
+    width: 70px;
+    height: 70px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.npc-info h1 {
+    color: #1a1a2e;
+    font-size: 1.4em;
+    margin-bottom: 5px;
+}
+
+.npc-info p {
+    color: rgba(0,0,0,0.7);
+    font-size: 0.9em;
+}
+
+.close-btn {
+    margin-left: auto;
+    background: rgba(0,0,0,0.2);
+    border: none;
+    color: #1a1a2e;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.close-btn:hover {
+    background: rgba(0,0,0,0.4);
+}
+
+.npc-stats {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    background: rgba(0,0,0,0.2);
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat .label {
+    display: block;
+    color: #888;
+    font-size: 0.85em;
+}
+
+.stat .value {
+    display: block;
+    color: #ffd700;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.npc-dialog {
+    padding: 20px;
+    color: #ccc;
+    font-size: 0.95em;
+    line-height: 1.5;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.vehicles-section {
+    padding: 20px;
+}
+
+.vehicles-section h3 {
+    color: #fff;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.vehicles-list {
+    display: grid;
+    gap: 10px;
+}
+
+.vehicle-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.vehicle-card:hover {
+    background: rgba(255,140,0,0.15);
+    border-color: #ff8c00;
+}
+
+.vehicle-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.vehicle-icon {
+    font-size: 2em;
+}
+
+.vehicle-info {
+    flex: 1;
+}
+
+.vehicle-info h4 {
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.vehicle-info .price {
+    color: #4caf50;
+    font-size: 0.9em;
+}
+
+.vehicle-info .deposit {
+    color: #888;
+    font-size: 0.8em;
+}
+
+.rent-btn {
+    background: linear-gradient(135deg, #4caf50, #8bc34a);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.rent-btn:hover {
+    transform: scale(1.05);
+}
+
+.rent-btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+}
+
+.own-vehicle-section {
+    padding: 20px;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.own-vehicle-btn {
+    background: linear-gradient(135deg, #2196f3, #03a9f4);
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 1em;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s;
+}
+
+.own-vehicle-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 20px rgba(33, 150, 243, 0.4);
+}
+
+.hint {
+    color: #888;
+    font-size: 0.85em;
+    margin-top: 10px;
+}
+
+.balance {
+    padding: 15px 20px;
+    background: rgba(0,0,0,0.3);
+    color: #4caf50;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}

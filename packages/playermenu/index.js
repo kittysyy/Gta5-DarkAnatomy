@@ -9,23 +9,23 @@ mp.events.add('playermenu:open', async (player) => {
     try {
         // Получаем данные персонажа
         const [charData] = await db.query(`
-            SELECT 
-                c.*,
-                u.registered_at,
-                f.name as faction_name,
-                f.id as faction_id,
-                cf.rank as faction_rank,
-                j.name as job_name,
-                j.id as job_id,
-                j.salary as job_salary
-            FROM characters c
-            LEFT JOIN users u ON c.user_id = u.id
-            LEFT JOIN character_factions cf ON c.id = cf.character_id
-            LEFT JOIN factions f ON cf.faction_id = f.id
-            LEFT JOIN character_jobs cj ON c.id = cj.character_id
-            LEFT JOIN jobs j ON cj.job_id = j.id
-            WHERE c.id = ?
-        `, [player.characterId]);
+			SELECT 
+				c.*,
+				u.registered_at,
+				f.name as faction_name,
+				f.id as faction_id,
+				cf.rank as faction_rank,
+				j.name as job_name,
+				j.id as job_id,
+				j.base_pay as job_salary
+			FROM characters c
+			LEFT JOIN users u ON c.user_id = u.id
+			LEFT JOIN character_factions cf ON c.id = cf.character_id
+			LEFT JOIN factions f ON cf.faction_id = f.id
+			LEFT JOIN character_jobs cj ON c.id = cj.character_id
+			LEFT JOIN jobs j ON cj.job_id = j.id
+			WHERE c.id = ?
+		`, [player.characterId]);
         
         if (charData.length === 0) return;
         
@@ -79,12 +79,18 @@ mp.events.add('playermenu:open', async (player) => {
         
         player.call('client:openPlayerMenu', [JSON.stringify(playerData), JSON.stringify(skills)]);
         
-        // ===== ДОБАВИТЬ ЭТО: Отправляем данные квестов =====
+        // Отправляем данные квестов
         if (global.questSystem && global.questSystem.getPlayerQuestsForMenu) {
             const questsData = await global.questSystem.getPlayerQuestsForMenu(player);
             player.call('playerMenu:updateQuests', [JSON.stringify(questsData)]);
             console.log(`[PlayerMenu] Sent quests: ${questsData.active.length} active, ${questsData.completed.length} completed`);
         }
+		
+		// Отправляем данные работ
+		if (global.jobSystem && global.jobSystem.getAllPlayerJobs) {
+			const jobsData = await global.jobSystem.getAllPlayerJobs(player.characterId);
+			player.call('client:updatePlayerJobs', [JSON.stringify(jobsData)]);
+		}
         
     } catch (err) {
         console.error('[PlayerMenu] Error:', err);

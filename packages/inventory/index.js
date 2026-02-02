@@ -545,6 +545,12 @@ async function equipClothing(player, item, fromSlot) {
 async function equipWeapon(player, item, fromSlot) {
     if (!player || !mp.players.exists(player)) return false;
     
+	// ПРОВЕРКА НА БЕЗОПАСНУЮ ЗОНУ
+    if (player.inSafeZone) {
+        player.outputChatBox('!{#f44336}Нельзя экипировать оружие в безопасной зоне!');
+        return false;
+    }
+	
     try {
         let modelData = item.model_data ? (typeof item.model_data === 'string' ? JSON.parse(item.model_data) : item.model_data) : null;
         
@@ -723,14 +729,21 @@ mp.events.add('inventory:moveItem', async (player, fromJson, toJson) => {
         const height = item.size_height || 1;
         
         if (to.type === 'equipment') {
-            if (item.type === 'weapon') {
-                await equipWeapon(player, item, from.index);
-            } else if (item.type === 'clothing') {
-                await equipClothing(player, item, from.index);
-            }
-            await sendInventoryUpdate(player);
-            return;
-        }
+			if (item.type === 'weapon') {
+				// ДОБАВЬ ЭТУ ПРОВЕРКУ:
+				if (global.safeZoneSystem && !global.safeZoneSystem.canEquipWeapon(player)) {
+					player.outputChatBox('!{#f44336}Нельзя экипировать оружие в безопасной зоне!');
+					await sendInventoryUpdate(player);
+					return;
+				}
+				
+				await equipWeapon(player, item, from.index);
+			} else if (item.type === 'clothing') {
+				await equipClothing(player, item, from.index);
+			}
+			await sendInventoryUpdate(player);
+		return;
+		}
         
         const toX = to.index % GRID_WIDTH;
         const toY = Math.floor(to.index / GRID_WIDTH);

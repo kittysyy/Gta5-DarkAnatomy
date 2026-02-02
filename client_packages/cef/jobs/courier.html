@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Курьер</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="courier-container">
+        <div class="courier-header">
+            <h1>📦 Курьерская служба</h1>
+            <button class="close-btn" onclick="closeMenu()">✕</button>
+        </div>
+        
+        <div class="courier-stats">
+            <div class="stat-row">
+                <span class="stat-label">Ранг:</span>
+                <span class="stat-value" id="rank">Стажёр</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Уровень:</span>
+                <span class="stat-value" id="level">1</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="expProgress"></div>
+            </div>
+            <div class="exp-text">До следующего уровня: <span id="expToNext">100</span> EXP</div>
+        </div>
+        
+        <div class="courier-info">
+            <div class="info-row">
+                <span>💰 Оплата за доставку:</span>
+                <span class="money" id="basePay">$150</span>
+            </div>
+            <div class="info-row">
+                <span>💵 Бонус чаевых:</span>
+                <span id="tipBonus">до $0</span>
+            </div>
+            <div class="info-row">
+                <span>📊 Всего доставок:</span>
+                <span id="totalDeliveries">0</span>
+            </div>
+            <div class="info-row">
+                <span>💵 Всего заработано:</span>
+                <span class="money" id="totalEarned">$0</span>
+            </div>
+        </div>
+        
+        <div class="courier-actions">
+            <button class="start-btn" id="startBtn" onclick="startWork()">🚀 Начать работу</button>
+            <button class="stop-btn" id="stopBtn" onclick="stopWork()" style="display:none;">⏹️ Завершить смену</button>
+        </div>
+    </div>
+    
+    <script src="courier.js"></script>
+</body>
+</html>

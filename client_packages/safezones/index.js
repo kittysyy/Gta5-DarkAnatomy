@@ -4,9 +4,8 @@ let inSafeZone = false;
 let currentZone = null;
 let zoneRestrictions = [];
 let lastWeaponWarning = 0;
-let weaponHidden = false;
+let weaponsHidden = false;
 
-// Хэш безоружного состояния
 const WEAPON_UNARMED = 0xA2719263;
 
 // ===== ВХОД В БЕЗОПАСНУЮ ЗОНУ =====
@@ -16,14 +15,16 @@ mp.events.add('client:enterSafeZone', (zoneDataJson) => {
         inSafeZone = true;
         currentZone = zone;
         zoneRestrictions = zone.restrictions || [];
-        weaponHidden = false;
         
         mp.game.graphics.notify(`~g~Вы вошли в безопасную зону~w~\n${zone.name}`);
         console.log(`[SafeZone] Вошёл в зону: ${zone.name}`);
         
-        // Убираем оружие в инвентарь
-        if (zoneRestrictions.includes('weapons')) {
-            hideWeaponToInventory();
+        // Убираем оружие в инвентарь при входе
+        if (zoneRestrictions.includes('weapons') && !weaponsHidden) {
+            setTimeout(() => {
+                mp.events.callRemote('safezone:hideWeapon');
+                weaponsHidden = true;
+            }, 500);
         }
         
     } catch (err) {
@@ -36,27 +37,23 @@ mp.events.add('client:exitSafeZone', () => {
     inSafeZone = false;
     currentZone = null;
     zoneRestrictions = [];
-    weaponHidden = false;
+    weaponsHidden = false;
     
     mp.game.graphics.notify('~o~Вы покинули безопасную зону');
     console.log('[SafeZone] Вышел из зоны');
 });
 
-// ===== УБРАТЬ ОРУЖИЕ В ИНВЕНТАРЬ =====
-function hideWeaponToInventory() {
+// ===== ПОЛУЧИТЬ ТЕКУЩЕЕ ОРУЖИЕ =====
+function getCurrentWeapon() {
     const player = mp.players.local;
-    const currentWeapon = mp.game.weapon.getSelectedPedWeapon(player.handle);
-    
-    if (currentWeapon !== WEAPON_UNARMED) {
-        // Отправляем на сервер чтобы убрать оружие в инвентарь
-        mp.events.callRemote('safezone:hideWeapon');
-        
-        // Убираем из рук
-        mp.game.weapon.setCurrentPedWeapon(player.handle, WEAPON_UNARMED, true);
-        weaponHidden = true;
-        
-        mp.game.graphics.notify('~y~Оружие убрано в инвентарь');
-    }
+    // Используем native напрямую
+    return mp.game.invoke('0x0A6DB4965674D243', player.handle);
+}
+
+// ===== УСТАНОВИТЬ ОРУЖИЕ =====
+function setCurrentWeapon(weaponHash) {
+    const player = mp.players.local;
+    mp.game.invoke('0xADF692B254977C0C', player.handle, weaponHash, true);
 }
 
 // ===== ГЛАВНЫЙ ЦИКЛ =====
@@ -64,25 +61,26 @@ mp.events.add('render', () => {
     if (!inSafeZone) return;
     if (mp.gui.cursor.visible) return;
     
-    const player = mp.players.local;
     const now = Date.now();
     
     if (zoneRestrictions.includes('weapons')) {
         
-        // Получаем текущее оружие
-        const currentWeapon = mp.game.weapon.getSelectedPedWeapon(player.handle);
-        
-        // Если в руках оружие - убираем
-        if (currentWeapon !== WEAPON_UNARMED) {
-            mp.game.weapon.setCurrentPedWeapon(player.handle, WEAPON_UNARMED, true);
+        try {
+            // Получаем текущее оружие
+            const currentWeapon = getCurrentWeapon();
             
-            if (now - lastWeaponWarning > 3000) {
-                mp.game.graphics.notify('~r~Оружие запрещено в безопасной зоне!');
-                lastWeaponWarning = now;
+            // Если в руках оружие - убираем
+            if (currentWeapon !== WEAPON_UNARMED) {
+                setCurrentWeapon(WEAPON_UNARMED);
+                
+                if (now - lastWeaponWarning > 3000) {
+                    mp.game.graphics.notify('~r~Оружие запрещено в безопасной зоне!');
+                    lastWeaponWarning = now;
+                }
             }
-        }
+        } catch (err) {}
         
-        // Блокируем ВСЕ контролы связанные с оружием
+        // Блокируем контролы оружия
         mp.game.controls.disableControlAction(0, 24, true);  // Attack
         mp.game.controls.disableControlAction(0, 25, true);  // Aim
         mp.game.controls.disableControlAction(0, 45, true);  // Reload

@@ -2248,6 +2248,38 @@ mp.events.add('client:skillUpgraded', (skillId, newLevel, remainingPoints) => {
     }
 });
 
+// ===== РАБОТЫ В МЕНЮ ИГРОКА =====
+mp.events.add('cef:requestJobs', () => {
+    mp.events.callRemote('jobs:getPlayerJobs');
+});
+
+mp.events.add('cef:startJob', (jobId) => {
+    closePlayerMenu();
+    mp.events.callRemote('jobs:startJob', jobId);
+});
+
+mp.events.add('cef:stopJob', () => {
+    mp.events.callRemote('jobs:stopWork');
+    if (playerMenuBrowser) {
+        playerMenuBrowser.execute('updateJobStatus(false)');
+    }
+});
+
+mp.events.add('client:updatePlayerJobs', (jobsJson) => {
+    if (playerMenuBrowser) {
+        try {
+            const safeJson = jobsJson.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            playerMenuBrowser.execute(`loadJobsData(JSON.parse('${safeJson}'))`);
+        } catch (e) {
+            console.error('[PlayerMenu] Ошибка:', e);
+        }
+    }
+});
+
+mp.events.add('client:jobStarted', () => {
+    mp.game.graphics.notify('~g~Работа начата!');
+});
+
 // ===== СИСТЕМА УРОВНЕЙ - КЛИЕНТ =====
 
 // Уведомление о повышении уровня
@@ -2959,6 +2991,21 @@ setInterval(() => {
         } catch (err) {}
     });
 }, 2000);
+
+// ===== БЛИПЫ РАБОТ =====
+mp.events.add('playerReady', () => {
+    setTimeout(() => {
+        // Курьерская служба
+        mp.blips.new(478, new mp.Vector3(105.5, -1568.0, 29.6), {
+            name: 'Курьерская служба',
+            color: 46,
+            scale: 0.9,
+            shortRange: true
+        });
+        
+        console.log('[Client] ✅ Блипы работ созданы');
+    }, 5000);
+});
 
 console.log('[NPC Protection] ✅ Защита NPC загружена');
 console.log('[Test] Команды /testdlc, /testgta и /teststream загружены');

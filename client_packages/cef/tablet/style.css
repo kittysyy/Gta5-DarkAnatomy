@@ -1,0 +1,372 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.tablet-container {
+    perspective: 1000px;
+}
+
+.tablet-frame {
+    width: 400px;
+    height: 600px;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-radius: 30px;
+    border: 3px solid #333;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.tablet-header {
+    height: 30px;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    color: #fff;
+    font-size: 0.85em;
+}
+
+.status-icons {
+    display: flex;
+    gap: 10px;
+}
+
+.tablet-content {
+    flex: 1;
+    overflow-y: auto;
+    position: relative;
+}
+
+.screen {
+    display: none;
+    padding: 20px;
+    height: 100%;
+    animation: fadeIn 0.3s ease;
+}
+
+.screen.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Главный экран - приложения */
+.apps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.app:hover {
+    transform: scale(1.1);
+}
+
+.app-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8em;
+    margin-bottom: 8px;
+}
+
+.app-icon.delivery { background: linear-gradient(135deg, #ff8c00, #ffd700); }
+.app-icon.family { background: linear-gradient(135deg, #e91e63, #ff5722); }
+.app-icon.faction { background: linear-gradient(135deg, #2196f3, #03a9f4); }
+.app-icon.auction { background: linear-gradient(135deg, #9c27b0, #673ab7); }
+.app-icon.settings { background: linear-gradient(135deg, #607d8b, #455a64); }
+
+.app span {
+    color: #fff;
+    font-size: 0.85em;
+}
+
+/* Заголовок приложения */
+.app-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.app-header h2 {
+    color: #fff;
+    font-size: 1.2em;
+}
+
+.back-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.back-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Статус доставки */
+.delivery-status {
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.delivery-status .not-working {
+    color: #888;
+    text-align: center;
+}
+
+.delivery-status .working {
+    color: #4caf50;
+}
+
+/* Контракты */
+.contracts-section h3,
+.current-contract h3 {
+    color: #ffd700;
+    margin-bottom: 15px;
+    font-size: 1em;
+}
+
+.contracts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.contract-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.contract-card:hover {
+    background: rgba(255,140,0,0.15);
+    border-color: #ff8c00;
+}
+
+.contract-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.contract-cargo {
+    font-size: 1.5em;
+}
+
+.contract-type {
+    color: #fff;
+    font-weight: bold;
+}
+
+.contract-route {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 0.85em;
+    color: #aaa;
+    margin-bottom: 10px;
+}
+
+.contract-route .from,
+.contract-route .to {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.contract-route .from i { color: #ffd700; }
+.contract-route .to i { color: #4caf50; }
+
+.contract-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.contract-reward {
+    color: #4caf50;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.contract-distance {
+    color: #888;
+    font-size: 0.85em;
+}
+
+.accept-btn {
+    background: linear-gradient(135deg, #4caf50, #8bc34a);
+    border: none;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.accept-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Текущий контракт */
+.contract-details {
+    background: linear-gradient(135deg, rgba(255,140,0,0.2), rgba(255,215,0,0.1));
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid #ff8c00;
+}
+
+.contract-details .cargo-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.contract-details .cargo-icon {
+    font-size: 2.5em;
+}
+
+.contract-details .cargo-name {
+    color: #fff;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.contract-details .status {
+    color: #ffd700;
+    font-size: 0.9em;
+}
+
+.contract-details .route-info {
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.contract-details .route-point {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    color: #ccc;
+}
+
+.contract-details .route-point.active {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+.contract-details .route-point i {
+    width: 20px;
+}
+
+.contract-details .reward-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.contract-details .reward {
+    color: #4caf50;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+/* Заглушка */
+.coming-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80%;
+    color: #666;
+}
+
+.coming-soon i {
+    font-size: 3em;
+    margin-bottom: 15px;
+}
+
+/* Навигация */
+.tablet-nav {
+    height: 50px;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+}
+
+.tablet-nav button {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tablet-nav button:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Скроллбар */
+.tablet-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.tablet-content::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+}
+
+.tablet-content::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 5px;
+}

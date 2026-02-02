@@ -254,25 +254,93 @@ global.safeZoneSystem = {
     addZone: (zone) => safeZones.push(zone)
 };
 
-// ===== УБРАТЬ ОРУЖИЕ В ИНВЕНТАРЬ =====
+// ===== УБРАТЬ ВСЕ ОРУЖИЕ В ИНВЕНТАРЬ =====
 mp.events.add('safezone:hideWeapon', async (player) => {
     if (!player || !mp.players.exists(player)) return;
     if (!player.characterId) return;
     
     try {
-        // Получаем экипированное оружие из слота
-        const equippedWeapon = player.equippedWeapon;
+        // Получаем все экипированные оружия
+        const [weapons] = await db.query(`
+            SELECT ce.slot_type, i.model_data, i.display_name, i.size_width, i.size_height, ce.item_id
+            FROM character_equipment ce
+            JOIN items i ON ce.item_id = i.id
+            WHERE ce.character_id = ? AND i.type = 'weapon'
+        `, [player.characterId]);
         
-        if (equippedWeapon && global.inventorySystem) {
-            // Снимаем оружие (убираем из рук, но оставляем в инвентаре)
-            player.removeAllWeapons();
-            player.equippedWeapon = null;
+        if (weapons.length === 0) return;
+        
+        for (const weapon of weapons) {
+            const width = weapon.size_width || 1;
+            const height = weapon.size_height || 1;
             
-            console.log(`[SafeZone] ${player.name} убрал оружие в инвентарь`);
+            // Находим свободный слот
+            const [slots] = await db.query(
+                'SELECT slot FROM character_inventory WHERE character_id = ?',
+                [player.characterId]
+            );
+            
+            const occupiedSlots = new Set(slots.map(s => s.slot));
+            let freeSlot = -1;
+            
+            for (let i = 0; i < 50; i++) {
+                if (!occupiedSlots.has(i)) {
+                    freeSlot = i;
+                    break;
+                }
+            }
+            
+            if (freeSlot === -1) {
+                player.outputChatBox('!{#f44336}Нет места в инвентаре для оружия!');
+                continue;
+            }
+            
+            // Удаляем из экипировки
+            await db.query(
+                'DELETE FROM character_equipment WHERE character_id = ? AND slot_type = ?',
+                [player.characterId, weapon.slot_type]
+            );
+            
+            // Добавляем в инвентарь
+            await db.query(
+                'INSERT INTO character_inventory (character_id, item_id, slot, quantity) VALUES (?, ?, ?, 1)',
+                [player.characterId, weapon.item_id, freeSlot]
+            );
+            
+            // Убираем оружие из рук
+            if (weapon.model_data) {
+                const modelData = typeof weapon.model_data === 'string' 
+                    ? JSON.parse(weapon.model_data) : weapon.model_data;
+                if (modelData.weaponHash) {
+                    player.removeWeapon(mp.joaat(modelData.weaponHash));
+                }
+            }
+            
+            console.log(`[SafeZone] ${player.name} убрал ${weapon.display_name} в инвентарь`);
         }
+        
+        player.outputChatBox('!{#ffc107}Оружие убрано в инвентарь (безопасная зона)');
+        
+        // Обновляем инвентарь на клиенте
+        mp.events.call('inventory:sendUpdate', player);
+        
     } catch (err) {
         console.error('[SafeZone] Ошибка убирания оружия:', err);
     }
 });
+
+// ===== ПРОВЕРКА МОЖНО ЛИ ЭКИПИРОВАТЬ ОРУЖИЕ =====
+global.safeZoneSystem = {
+    isPlayerInSafeZone: (player) => player.inSafeZone || false,
+    getPlayerZone: (player) => player.currentSafeZone || null,
+    getAllZones: () => safeZones,
+    addZone: (zone) => safeZones.push(zone),
+    canEquipWeapon: (player) => {
+        if (!player.inSafeZone) return true;
+        const zone = player.currentSafeZone;
+        if (!zone) return true;
+        return !zone.restrictions.includes('weapons');
+    }
+};
 
 console.log(`[SafeZone] ✅ Система загружена! Зон: ${safeZones.length}`);
