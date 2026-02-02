@@ -502,7 +502,7 @@ mp.events.add('server:selectCharacter', async (player, characterId) => {
                 try {
                     return character.appearance ? JSON.parse(character.appearance) : null;
                 } catch (e) {
-                    console.error('[Server] Invalid appearance JSON:', e.message);
+                    console.error(`[Server] Invalid appearance JSON for character ${character.id}:`, e.message);
                     return null;
                 }
             })()
